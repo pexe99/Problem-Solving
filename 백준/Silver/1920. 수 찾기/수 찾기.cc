@@ -1,5 +1,6 @@
 #include <iostream>
-#include <set>
+#include <vector>
+#include <algorithm>
 using namespace std;
 
 int main() {
@@ -10,12 +11,14 @@ int main() {
 	int N, M;
 	cin >> N;
 
-	set<int> v;
+	vector<int> v;
 	for (int i = 0; i < N; i++) {
 		int input;
 		cin >> input;
-		v.insert(input);
+		v.push_back(input);
 	}
+
+	sort(v.begin(), v.end());
 
 	cin >> M;
 
@@ -23,7 +26,21 @@ int main() {
 		int result = 0;
 		int input;
 		cin >> input;
-		if (v.find(input) == v.end()) cout << 0 << "\n";
-		else cout << 1 << "\n";
+		int low = 0;
+		int high = v.size() - 1;
+		while (low <= high) {
+			int mid = (low + high) / 2;
+			if (v[mid] == input) {
+				result = 1;
+				break;
+			}
+			else if (v[mid] < input) {
+				low = mid + 1;
+			}
+			else {
+				high = mid - 1;
+			}
+		}
+		cout << result << "\n";
 	}
 }
