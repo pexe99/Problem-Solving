@@ -1,9 +1,8 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
 using namespace std;
 
-int N, M, depth;
+int N, M;
 vector<bool> used;
 vector<int> result;
 
