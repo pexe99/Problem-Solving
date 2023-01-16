@@ -1,3 +1,3 @@
 function solution(n) {
-    return n % 2 === 1 ? (n + 1) / 2 * (n - 1) / 2 : (n + 2) / 2 * n / 2;
+    return Math.floor(n / 2) * Math.floor(n / 2 + 1);
 }
