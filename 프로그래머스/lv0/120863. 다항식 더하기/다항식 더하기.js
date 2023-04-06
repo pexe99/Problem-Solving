@@ -9,14 +9,10 @@ function solution(polynomial) {
         else result[1] += Number(cur);
     }
     
-    if(result[0] === 0 && result[1] === 0) return "0";
-    else if(result[0] === 0) return String(result[1]);
-    else if(result[1] === 0) {
-        if(result[0] === 1) return "x";
-        else return `${result[0]}x`;
-    }
-    else {
-        if(result[0] === 1) return `x + ${result[1]}`;
-        else return `${result[0]}x + ${result[1]}`;
-    }
+    let answer = [];
+    
+    if(result[0]) answer.push(`${result[0] === 1 ? '' : result[0]}x`);
+    if(result[1]) answer.push(String(result[1]));
+    
+    return answer.join(" + ");
 }
