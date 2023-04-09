@@ -1,14 +1,10 @@
 function solution(arr)
 {
-    if(arr.length === 0) return arr;
-    else {
-        let answer = [];
-        answer.push(arr[0]);
+    let answer = [arr[0]];
     
-        for(num of arr) {
-            if(num !== answer[answer.length - 1]) answer.push(num);
-        }
-    
-        return answer;
+    for(let i = 1; i < arr.length; i++) {
+        if(arr[i] !== answer[answer.length - 1]) answer.push(arr[i]);
     }
+    
+    return answer;
 }
