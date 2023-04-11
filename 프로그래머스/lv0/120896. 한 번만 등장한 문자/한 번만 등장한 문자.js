@@ -1,5 +1,5 @@
 function solution(s) {
-    let counter = {};
+    const counter = {};
     let result = [];
     
     [...s].forEach((cur) => {
