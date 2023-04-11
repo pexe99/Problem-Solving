@@ -1,3 +1,3 @@
 function solution(numbers, k) {
-    return 2 * (k - 1) % numbers.length + 1;
+    return numbers[2 * (k - 1) % numbers.length];
 }
