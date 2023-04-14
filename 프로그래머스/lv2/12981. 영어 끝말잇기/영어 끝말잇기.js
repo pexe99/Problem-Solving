@@ -1,11 +1,10 @@
 function solution(n, words) {
-    let wordChain = {};
-    wordChain[words[0]] = 0;
+    let answer = 0;
+    
+    words.reduce((prev, cur, idx) => {
+        answer = answer || ((words.slice(0, idx).indexOf(cur) !== -1 || prev !== cur[0]) ? idx : answer);
+        return cur[cur.length-1];
+    }, "")
 
-    for(let i = 1; i < words.length; i++) {
-        if(words[i] in wordChain || words[i - 1].at(-1) !== words[i].at(0)) return [i % n + 1, Math.floor(i / n) + 1];
-        wordChain[words[i]] = i;
-    }
-
-    return [0, 0];
+    return answer ? [answer % n + 1, Math.floor(answer / n) + 1] : [0, 0];
 }
