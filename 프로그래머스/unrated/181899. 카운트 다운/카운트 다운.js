@@ -1,3 +1,3 @@
 function solution(start, end) {
-    return Array.from({length: start + 1}, (_, i) => i).splice(end).reverse();
+    return Array.from({length: start - end + 1}, (_, i) => start - i);
 }
