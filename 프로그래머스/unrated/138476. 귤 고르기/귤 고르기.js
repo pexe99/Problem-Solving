@@ -1,21 +1,15 @@
 function solution(k, tangerine) {
-    const tangerineType = {};
+    const tangerineType = {}; 
     
-    tangerine.forEach((t) => {
-        if(tangerineType[t]) tangerineType[t]++;
-        else tangerineType[t] = 1;
-    })
+    tangerine.forEach((t) => tangerineType[t] = (tangerineType[t] || 0) + 1);  
     
-    let sortable = [];
-    
-    for(let t in tangerineType) sortable.push([t, tangerineType[t]]);
-    sortable.sort((a, b) => b[1] - a[1]);
+    const sortedValue = Object.values(tangerineType).sort((a, b) => b - a);
     
     let result = 0;
     
-    for(let i = 0; i < sortable.length; i++) {
+    for(let i = 0; i < sortedValue.length; i++) {
         result++;
-        if(k - sortable[i][1] <= 0) return result;
-        else k -= sortable[i][1];
+        if(k - sortedValue[i] <= 0) return result;
+        else k -= sortedValue[i];
     }
 }
