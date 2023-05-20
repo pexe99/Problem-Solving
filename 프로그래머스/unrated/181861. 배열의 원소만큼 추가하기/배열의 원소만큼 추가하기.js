@@ -1,7 +1,3 @@
 function solution(arr) {
-    let result = [];
-    arr.forEach((v) => {
-        for(let i = 0; i < v; i++) result.push(v);
-    })
-    return result;
+    return arr.reduce((list, current) => [...list, ...new Array(current).fill(current)], []);
 }
