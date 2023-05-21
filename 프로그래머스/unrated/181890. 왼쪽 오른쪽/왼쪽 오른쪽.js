@@ -1,8 +1,7 @@
 function solution(str_list) {
-    const lIndex = str_list.indexOf('l');
-    const rIndex = str_list.indexOf('r');
-    
-    if(lIndex === rIndex) return [];
-    else if(rIndex === -1 || lIndex !== -1 && lIndex < rIndex) return str_list.slice(0, lIndex);
-    else return str_list.slice(rIndex + 1);
+    for(let i = 0; i < str_list.length; i++) {
+        if(str_list[i] === 'r') return str_list.slice(i + 1);
+        if(str_list[i] === 'l') return str_list.slice(0, i);
+    }
+    return [];
 }
