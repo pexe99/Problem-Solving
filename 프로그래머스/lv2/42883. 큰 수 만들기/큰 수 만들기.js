@@ -1,21 +1,24 @@
 function solution(number, k) {
     let result = [];
+    let counter = 0;
     
-    [...number].map((v) => Number(v)).forEach((v, i) => {
-        while(true) {
-            if(result.length === 0) {
-                result.push(v);
-                break;
-            }
-            else if(k + result.length !== i && result.at(-1) < v) result.pop();
-            else {
-                if(result.length === number.length - k) break;
-                result.push(v);
-                break;
-            }
+    [...number].map((v) => Number(v)).every((v, i) => {
+        if(result.length === 0) result.push(v);
+        else {
+            while(result.at(-1) < v) {
+                result.pop();
+                counter++;
             
+                if(counter === k) {
+                    result.push(number.slice(i));
+                    return false;
+                }
+                if(result.length === 0) break;
+            }
+        result.push(v);
         }
+        return true;
     });
     
-    return result.join('');
+    return result.join('').slice(0, number.length - k);
 }
