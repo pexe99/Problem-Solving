@@ -17,4 +17,4 @@ function solution(n, computers) {
     }
     
     return result;
-}
+}   
