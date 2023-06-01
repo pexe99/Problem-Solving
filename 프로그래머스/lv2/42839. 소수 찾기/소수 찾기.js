@@ -1,14 +1,14 @@
 function solution(numbers) {
     const result = new Set();
-    const visited = new Array(numbers.length).fill(false);
+    const selected = new Array(numbers.length).fill(false);
     
     function DFS(current) {
         if(isPrime(Number(current))) result.add(Number(current)); 
         [...numbers].forEach((v, i) => {
-            if(!visited[i]) {
-                visited[i] = true;
+            if(!selected[i]) {
+                selected[i] = true;
                 DFS(current + v);
-                visited[i] = false;
+                selected[i] = false;
             }
         })
     }
