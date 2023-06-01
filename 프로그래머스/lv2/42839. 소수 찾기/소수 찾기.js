@@ -1,9 +1,9 @@
 function solution(numbers) {
-    let result = [];
-    let visited = new Array(numbers.length).fill(false);
+    const result = new Set();
+    const visited = new Array(numbers.length).fill(false);
     
     function DFS(current) {
-        if(isPrime(Number(current))) result.push(Number(current)); 
+        if(isPrime(Number(current))) result.add(Number(current)); 
         [...numbers].forEach((v, i) => {
             if(!visited[i]) {
                 visited[i] = true;
@@ -14,7 +14,7 @@ function solution(numbers) {
     }
     DFS("");
     
-    return [...new Set(result)].length;
+    return [...result].length;
 }
 
 function isPrime(n) {
