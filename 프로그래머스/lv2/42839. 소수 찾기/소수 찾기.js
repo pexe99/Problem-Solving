@@ -3,11 +3,7 @@ function solution(numbers) {
     let visited = new Array(numbers.length).fill(false);
     
     function DFS(current) {
-        let num = Number(current);
-        let counter = 0;
-        for(let j = 2; j <= Math.sqrt(num); j++) if(num % j === 0) counter++;
-        if(counter === 0) result.push(num);
-        
+        if(isPrime(Number(current))) result.push(Number(current)); 
         [...numbers].forEach((v, i) => {
             if(!visited[i]) {
                 visited[i] = true;
@@ -16,8 +12,14 @@ function solution(numbers) {
             }
         })
     }
-    
     DFS("");
     
-    return [...new Set(result)].filter((v) => v !== 1 && v !== 0).length;
+    return [...new Set(result)].length;
+}
+
+function isPrime(n) {
+    if(n === 1 || n === 0) return false;
+    let counter = 0;
+    for(let i = 2; i <= Math.sqrt(n); i++) if(n % i === 0) counter++;
+    return counter === 0;
 }
