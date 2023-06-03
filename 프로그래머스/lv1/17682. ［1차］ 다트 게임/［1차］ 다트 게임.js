@@ -1,23 +1,14 @@
 function solution(dartResult) {
-    let result = [];
-    
-    let current = '';
-    [...dartResult].forEach((v) => {
-        if('0' <= v && v <= '9') current += v;
-        else if(v === '*') {
-            if(result.length >= 2) result[result.length - 2] *= 2;
-            result[result.length - 1] *= 2;
-        }
-        else if(v === '#') {
-            result[result.length - 1] *= -1;
-        }
-        else {
-            if(v === 'S') result.push(Number(current));
-            if(v === 'D') result.push(Math.pow(Number(current), 2));
-            if(v === 'T') result.push(Math.pow(Number(current), 3));
-            current = '';
-        }
-    });
-    
-    return result.reduce((s, v) => s + v);
+    const bonus = { 'S': 1, 'D': 2, 'T': 3 };
+    const option = { '*': 2, '#': -1, undefined: 1 };
+
+    let games = dartResult.match(/\d\d?.?\D/g);
+    games.forEach((v, i) => {
+        let current = v.match(/(^\d{1,})(S|D|T)(\*|#)?/);
+        let score = Math.pow(current[1], bonus[current[2]]) * option[current[3]];
+        if(i >= 1 && current[3] === '*') games[i - 1] *= option['*'];
+        games[i] = score;
+    })
+
+    return games.reduce((s, v) => s + v);
 }
