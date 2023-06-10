@@ -1,39 +1,18 @@
 function solution(n) {
+    const direction = [[0, 1], [1, 0], [0, -1], [-1, 0]];
     let result = Array.from({length: n}, (_) => new Array(n).fill(0));
-    let counter = 1, i = 0, j = 0, direction = 0;
-    while(counter !== n * n + 1) {
+    let i = 0, j = 0, current = 0;
+    for(let counter = 1; counter <= n * n; counter++) {
         result[i][j] = counter;
-        counter++;
-        
-        if(direction === 0) {
-            if(j + 1 === n || result[i][j + 1] !== 0) {
-                direction = 1;
-                i++;
-            }
-            else j++;
+        let curI = i + direction[current][0];
+        let curJ = j + direction[current][1];
+        if(curI >= n || curJ >= n || curI < 0 || curJ < 0 || result[curI][curJ] !== 0) {
+            current = (current + 1) % 4;
+            curI = i + direction[current][0];
+            curJ = j + direction[current][1];
         }
-        else if(direction === 1) {
-            if(i + 1 === n || result[i + 1][j] !== 0) {
-                direction = 2;
-                j--;
-            }
-            else i++;
-        }
-        else if(direction === 2) {
-            if(j - 1 === -1 || result[i][j - 1] !== 0) {
-                direction = 3;
-                i--;
-            }
-            else j--;
-        }
-        else {
-            if(i - 1 === -1 || result[i - 1][j] !== 0) {
-                direction = 0;
-                j++;
-            }
-            else i--;
-        }
-        
+        i = curI;
+        j = curJ;
     }
     return result;
 }
