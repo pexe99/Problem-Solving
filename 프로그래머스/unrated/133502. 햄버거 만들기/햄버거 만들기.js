@@ -6,7 +6,7 @@ function solution(ingredient) {
           && stack[stack.length - 2] === 3
           && stack[stack.length - 3] === 2
           && stack[stack.length - 4] === 1) {
-            stack.pop(); stack.pop(); stack.pop(); stack.pop();
+            stack.splice(-4);
             result++;
         }
     })
