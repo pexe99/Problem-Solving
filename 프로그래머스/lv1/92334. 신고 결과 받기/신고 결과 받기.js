@@ -4,13 +4,13 @@ function solution(id_list, report, k) {
         reportCounter[name] = [];
         mail[name] = 0;
     });
-    report.forEach((v) => {
+    [...new Set(report)].forEach((v) => {
         let [reporter, reported] = v.split(' ');
         reportCounter[reported].push(reporter);
     });
     
     for(let reported in reportCounter) {
-        let current = [...new Set(reportCounter[reported])];
+        let current = reportCounter[reported];
         if(current.length >= k) current.forEach((v) => mail[v]++);
     }
     
