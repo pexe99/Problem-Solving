@@ -1,17 +1,20 @@
 function solution(board, moves) {
     let stack = [], result = 0;
+    board = transpose(board).map((row) => row.filter((v) => v !== 0).reverse());
+    console.log(board);
     moves.forEach((v) => {
-        for(let i = 0; i < board.length; i++) {
-            if(board[i][v - 1] !== 0) {
-                if(board[i][v - 1] === stack.at(-1)) {
-                    stack.pop();
-                    result += 2;
-                }
-                else stack.push(board[i][v - 1]);
-                board[i][v - 1] = 0;
-                return;
+        let current = board[v - 1].pop();
+        if(current) {
+            if(stack.at(-1) === current) {
+                stack.pop();
+                result += 2;
             }
-        } 
-    });
+            else stack.push(current);
+        }
+    })
     return result;
+}
+
+const transpose = matrix => {
+    return matrix.reduce((result, row) => row.map((_, i) => [...(result[i] || []), row[i]]), []);
 }
