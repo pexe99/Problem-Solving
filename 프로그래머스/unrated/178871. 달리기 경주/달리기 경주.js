@@ -1,18 +1,16 @@
 function solution(players, callings) {
-    const rankByNum = new Map(), rankByName = new Map();
-    players.forEach((name, i) => {
-        rankByNum.set(i, name);
-        rankByName.set(name, i);
-    });
+    const rank = {};
+    players.forEach((name, i) => rank[name] = i);
+    
     
     callings.forEach((name) => {
-        let curRank = rankByName.get(name);
-        let frontName = rankByNum.get(curRank - 1);
-        rankByName.set(name, curRank - 1);
-        rankByName.set(frontName, curRank);
-        rankByNum.set(curRank - 1 , name);
-        rankByNum.set(curRank, frontName);
+        let curRank = rank[name];
+        let frontName = players[curRank - 1];
+        players[curRank] = frontName;
+        players[curRank - 1] = name;
+        rank[name]--;
+        rank[frontName]++;
     });
     
-    return Array.from(rankByNum.values());
+    return players;
 }
