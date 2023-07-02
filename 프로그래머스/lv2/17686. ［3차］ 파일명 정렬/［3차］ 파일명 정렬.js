@@ -7,9 +7,9 @@ function solution(files) {
         let headA = a.split(numberA)[0].toLowerCase();
         let headB = b.split(numberB)[0].toLowerCase();
         // HEAD 기준으로 정렬
-        if(headA < headB) return -1;
-        if(headA > headB) return 1;
+        //if(headA < headB) return -1;
+        //if(headA > headB) return 1;
         // HEAD가 같은 경우, NUMBER로 정렬
-        return +numberA - +numberB;
+        return headA.localeCompare(headB) || +numberA - +numberB;
     })
 }
