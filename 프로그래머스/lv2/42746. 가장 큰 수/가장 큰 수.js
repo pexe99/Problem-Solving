@@ -4,5 +4,5 @@ function solution(numbers) {
         if(+`${a}${b}` < +`${b}${a}`) return 1;
     }).join('');
     
-    return result.split('').filter((v) => v !== '0').length ? result : '0';
+    return result[0] !== '0' ? result : '0';
 }
