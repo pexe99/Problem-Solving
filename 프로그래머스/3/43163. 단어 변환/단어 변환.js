@@ -1,7 +1,10 @@
 function solution(begin, target, words) {
+    let result = 0;
+    let visited = {};
     let graph = {};
     words.push(begin);
     words.forEach((x) => {
+        visited[x] = false;
         words.forEach((y) => {
             if(x !== y && isOnlyOneDiff(x, y)) {
                 graph[x] = (graph[x] || []).concat(y);
@@ -9,11 +12,6 @@ function solution(begin, target, words) {
         })
     });
     
-    let result = 0;
-    let visited = words.reduce((res, cur) => {
-        res[cur] = false;
-        return res;
-    }, {});
     
     const DFS = (cur, n) => {
         if(cur === target) {
