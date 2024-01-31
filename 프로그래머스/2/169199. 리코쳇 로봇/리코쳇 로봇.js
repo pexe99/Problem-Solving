@@ -28,12 +28,10 @@ const solution = (board) => {
             board[curX][curY] = 'V';
             directions.forEach(([x, y]) => {
                 let nextX = curX, nextY = curY;
-                while(0 <= nextX && nextX < boardX && 0 <= nextY && nextY < boardY && board[nextX]?.[nextY] !== 'D') {
+                while(0 <= nextX + x && nextX + x < boardX && 0 <= nextY + y && nextY + y < boardY && board[nextX + x]?.[nextY + y] !== 'D') {
                     nextX += x;
                     nextY += y;
                 }
-                nextX -= x;
-                nextY -= y;
                 if(board[nextX] && (board[nextX][nextY] === '.' || board[nextX][nextY] === 'G')) 
                    queue.push({curX: nextX, curY: nextY, curDist: curDist + 1});
             })
