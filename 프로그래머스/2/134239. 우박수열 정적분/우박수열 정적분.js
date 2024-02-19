@@ -1,23 +1,16 @@
 function solution(k, ranges) {
-    let result = [], collatz = [k];
+    let result = [], collatz = [k], area = [];
     while(k !== 1) {
         k = k % 2 === 1 ? k * 3 + 1 : k / 2;
+        area.push((collatz.at(-1) + k) / 2);
         collatz.push(k);
     }
     
     ranges.forEach(([x, y]) => {
-        if(y + collatz.length - 1 < x) result.push(-1);
-        else {
-            let current = 0;
-            for(let i = x; i < y + collatz.length - 1; i++) {
-            current += getArea(collatz[i], collatz[i + 1]);
-        }
-        result.push(current);   
-        }
+        let [start, end] = [x, y + collatz.length - 1];
+        if(end < start) result.push(-1);
+        else if(start === end) result.push(0);
+        else result.push(area.slice(start, end).reduce((res, cur) => res + cur));
     });
     return result;
-}
-
-const getArea = (start, end) => {
-    return (start + end) / 2;
 }
