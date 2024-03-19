@@ -1,14 +1,13 @@
 function solution(A, B) {
     A.sort((a, b) => b - a);
-    B.sort((a, b) => a - b);
+    B.sort((a, b) => b - a);
     
-    let result = 0;
+    let result = 0, index = 0;
     A.forEach((e) => {
-        if(e < B.at(-1)) {
-            B.pop();
-            result++;
+        if(e < B[index]) {
+            index++;
+            result++;   
         }
-        else B.shift();
     });
     
     return result;
