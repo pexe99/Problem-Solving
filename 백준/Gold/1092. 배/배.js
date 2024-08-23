@@ -7,32 +7,33 @@ const input = require("fs")
 const N = +input[0];
 const cranes = input[1]
   .split(" ")
-  .map((e) => {
-    return { weight: +e, boxes: [] };
-  })
-  .sort((a, b) => b.weight - a.weight);
+  .map(Number)
+  .sort((a, b) => b - a);
 const M = +input[2];
 const boxes = input[3]
   .split(" ")
   .map(Number)
   .sort((a, b) => b - a);
 
-for (let box of boxes) {
-  let available = false;
-  for (let crane of cranes) {
-    if (box <= crane.weight) {
-      crane.boxes.push(box);
-      cranes.sort(
-        (a, b) => a.boxes.length - b.boxes.length || a.weight - b.weight
-      );
-      available = true;
-      break;
-    }
+const checkAvailable = (time) => {
+  let [boxIndex, craneIndex] = [0, 0];
+  while (boxIndex < M) {
+    if (craneIndex === N || cranes[craneIndex] < boxes[boxIndex]) return false;
+    [boxIndex, craneIndex] = [boxIndex + time, craneIndex + 1];
   }
-  if (!available) {
-    console.log(-1);
-    process.exit(0);
-  }
-}
+  return true;
+};
 
-console.log(cranes.reduce((acc, cur) => Math.max(acc, cur.boxes.length), 0));
+const binarySearch = () => {
+  let [start, end] = [1, M];
+
+  while (start <= end) {
+    let mid = Math.floor((start + end) / 2);
+    if (checkAvailable(mid)) end = mid - 1;
+    else start = mid + 1;
+  }
+
+  return M < start ? -1 : start;
+};
+
+console.log(binarySearch());
