@@ -1,59 +1,70 @@
-function solution(edges, target) {
-    const graph = {};
-    let maxNodeNumber = -1;
-    edges.forEach(([from, to]) => {
-        if (!graph.hasOwnProperty(from - 1)) graph[from - 1] = [to - 1];
-        else graph[from - 1].push(to - 1);
-        graph[from - 1].sort((a, b) => a - b);
-        maxNodeNumber = Math.max(maxNodeNumber, from - 1, to - 1);
-    });
+const MAX_CARD_NUMBER = 3;
 
+const getNodeCardIndex = (maxNodeNumber, graph, target) => {
     const nodeCardIndex = Array.from({ length: maxNodeNumber + 1 }, () => []);
     const visitedCounter = Array.from({ length: maxNodeNumber + 1 }, () => 0);
     const targetCardExpect = target.map((amount) => {
-        return {min: Math.ceil(amount / 3), max: amount};
+        return { min: Math.ceil(amount / MAX_CARD_NUMBER), max: amount };
     });
 
     let cardIndex = 0;
     while (true) {
-        let result = true;
+        let isAvailableCardAmount = true;
         for (let index = 0; index < targetCardExpect.length; index++) {
-            if (nodeCardIndex[index].length < targetCardExpect[index].min) result = false;
-            if (nodeCardIndex[index].length > targetCardExpect[index].max) {
-                return [-1];
-            }
+            if (nodeCardIndex[index].length < targetCardExpect[index].min)  isAvailableCardAmount = false;
+            if (nodeCardIndex[index].length > targetCardExpect[index].max) return -1;
         }
-        if (result) break;
-
+        if (isAvailableCardAmount) break;
+        
         let currentNode = 0;
         while (true) {
-            if (!graph.hasOwnProperty(currentNode)) {
+            if (graph.hasOwnProperty(currentNode)) {
+                let nextIndex = visitedCounter[currentNode] % graph[currentNode].length;
+                let nextNode = graph[currentNode][nextIndex];
+                visitedCounter[currentNode]++;
+                currentNode = nextNode;
+            } else {
                 nodeCardIndex[currentNode].push(cardIndex++);
                 break;
             }
-            let nextNode = graph[currentNode][visitedCounter[currentNode] % graph[currentNode].length];
-            visitedCounter[currentNode]++;
-            currentNode = nextNode;
         }
     }
+    return nodeCardIndex;
+};
 
-    let nodeCards = nodeCardIndex.map((array, index) => {
-        let cards = [];
-        let current = 3;
-        let remain = array.length;
-
-        while (remain > 0) {
-            while (target[index] - current >= remain - 1 && remain > 0) {
-                target[index] -= current;
+const getCardOrder = (nodeCardIndex, target) => {
+    const remainTarget = [...target];
+    const nodeCards = nodeCardIndex.map((array, index) => {
+        let [cards, current, remain] = [[], MAX_CARD_NUMBER, array.length];
+        while (current > 0) {
+            while (remainTarget[index] - current >= remain - 1 && remain > 0) {
+                remainTarget[index] -= current;
                 cards.push(current);
                 remain--;
             }
             current--;
         }
-        cards = cards.reverse();
-        return array.map((number, idx) => ({ index: number, card: cards[idx] }));
+        return array.map((number, index) => {
+            return { index: number, card: cards[cards.length - index - 1] };
+        });
     });
 
-    return nodeCards.reduce((res, cur) => [...res, ...cur])
+    return nodeCards.reduce((result, current) => [...result, ...current])
         .sort((a, b) => a.index - b.index).map((object) => object.card);
-}
+};
+
+function solution(edges, target) {
+    const graph = {};
+    let maxNodeNumber = -1;
+    edges.forEach(([from, to]) => {
+        [from, to] = [from - 1, to - 1];
+        if (!graph.hasOwnProperty(from)) graph[from] = [to];
+        else graph[from].push(to);
+        graph[from].sort((a, b) => a - b);
+        maxNodeNumber = Math.max(maxNodeNumber, from, to);
+    });
+
+    const nodeCardIndex = getNodeCardIndex(maxNodeNumber, graph, target);
+    if (nodeCardIndex === -1) return [-1];
+    return getCardOrder(nodeCardIndex, target);
+} 
