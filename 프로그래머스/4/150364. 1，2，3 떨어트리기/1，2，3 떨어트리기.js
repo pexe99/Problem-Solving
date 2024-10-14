@@ -48,7 +48,6 @@ const getCardOrder = (nodeCardIndex, target) => {
             return { index: number, card: cards[cards.length - index - 1] };
         });
     });
-
     return nodeCards.reduce((result, current) => [...result, ...current])
         .sort((a, b) => a.index - b.index).map((object) => object.card);
 };
