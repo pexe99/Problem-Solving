@@ -1,10 +1,10 @@
 # [level 4] 쌍둥이 빌딩 숲 - 140105 
 
-[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/140105) 
+[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/140105?language=python3) 
 
 ### 성능 요약
 
-메모리: 46.5 MB, 시간: 3.95 ms
+메모리: 17.2 MB, 시간: 9.76 ms
 
 ### 구분
 
@@ -16,7 +16,7 @@
 
 ### 제출 일자
 
-2024년 10월 16일 22:25:13
+2024년 10월 17일 12:37:07
 
 ### 문제 설명
 
