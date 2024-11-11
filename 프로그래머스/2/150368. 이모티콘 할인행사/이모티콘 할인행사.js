@@ -1,35 +1,44 @@
-function solution(users, emoticons) {
-    const getPermutation = (numbers, length) => {
-        const result = [];
-        const permute = (temp) => {
-            if(temp.length === length) {
-                result.push(temp);
-                return;
-            }
-            for(let i = 0; i < numbers.length; i++) {
-                permute([...temp, numbers[i]]);
-            }
+const getPermutations = (numbers, length) => {
+    const results = [];
+    const generatePermutations = (current) => {
+        if (current.length === length) {
+            results.push(current);
+            return;
         }
-        permute([]);
-        return result;
-    }
-    
-    let result = [0, 0];
-    getPermutation([10, 20, 30, 40], emoticons.length).forEach((sales) => {
-        const salePrice = emoticons.map((cur, idx) => cur * (100 - sales[idx]) / 100);
-        let current = [0, 0];
-       users.forEach(([percent, price]) => {
-           let money = 0;
-           for(let i = 0; i < salePrice.length; i++) {
-               if(percent <= sales[i]) money += salePrice[i];
-           }
-           if(price <= money) current[0]++;
-           else current[1] += money;
-       });
-        if(result[0] < current[0] || (result[0] === current[0] && result[1] < current[1])) {
-            result = current;
+        numbers.forEach((number) => {
+            generatePermutations([...current, number]);
+        });
+    };
+    generatePermutations([]);
+    return results;
+};
+
+const solution = (users, emoticons) => {
+    let bestResult = [0, 0];
+    const discountPermutations = getPermutations([10, 20, 30, 40], emoticons.length);
+
+    discountPermutations.forEach((discounts) => {
+        let [plusUsersCount, totalSales] = [0, 0];
+
+        users.forEach(([minDiscount, minPurchase]) => {
+            const userPurchase = emoticons.reduce((sum, price, idx) => {
+                return minDiscount <= discounts[idx] 
+                    ? sum + price * (100 - discounts[idx]) / 100 
+                    : sum;
+            }, 0);
+
+            if (userPurchase >= minPurchase) {
+                plusUsersCount++;
+            } else {
+                totalSales += userPurchase;
+            }
+        });
+
+        if (plusUsersCount > bestResult[0] || 
+           (plusUsersCount === bestResult[0] && totalSales > bestResult[1])) {
+            bestResult = [plusUsersCount, totalSales];
         }
     });
-    
-    return result;
-}
+
+    return bestResult;
+};
