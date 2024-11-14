@@ -1,33 +1,29 @@
 function solution(n, wires) {
-    const graph = Array.from({length: n}, () => {
-        return Array.from({length: n}, () => false);
-    });
+    const graph = {};
     wires.forEach(([a, b]) => {
-        a--; b--;
-        graph[a][b] = graph[b][a] = true;
+        graph[a - 1] = [...(graph[a - 1] || []), b - 1];
+        graph[b - 1] = [...(graph[b - 1] || []), a - 1];
     });
     
+    const parent = new Array(n).fill(null);
+    const bfsOrder = [0];
+    parent[0] = -1;
+    for(let i = 0; i < bfsOrder.length; i++) {
+        const current = bfsOrder[i];
+        graph[current].forEach((next) => {
+            if(parent[next] === null) {
+                parent[next] = current;
+                bfsOrder.push(next);
+            }
+        });
+    }
+    
     let result = Infinity;
-    wires.forEach(([a, b]) => {
-        a--; b--;
-        graph[a][b] = graph[b][a] = false;
-        const visited = Array.from({length: n}, () => false);
-        const DFS = (cur) => {
-            let counter = 1;
-            visited[cur] = true;
-            graph[cur].forEach((next, idx) => {
-                if(next && !visited[idx]) {
-                    counter += DFS(idx);
-                }
-            });
-            return counter;
-        }
-        const subtree = [];
-        for(let i = 0; i < n; i++) {
-            if(!visited[i]) subtree.push(DFS(i));
-        }
-        result = Math.min(result, Math.abs(subtree[0] - subtree[1]));
-        graph[a][b] = graph[b][a] = true;
-    });
+    const DP = new Array(n).fill(1);
+    for(let i = bfsOrder.length - 1; i > 0; i--) {
+        const current = bfsOrder[i];
+        DP[parent[current]] += DP[current];
+        result = Math.min(result, Math.abs(n - 2 * DP[current]));
+    }
     return result;
 }
