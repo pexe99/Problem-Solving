@@ -1,8 +1,8 @@
 const MAX_TARGET = 100000;
 
 function solution(target) {
-    const dp = Array.from({length: MAX_TARGET + 1}, () => [Infinity, 0]);
-    for(let i = 1; i <= target; i++) {
+    const dp = Array.from({length: 311}, () => [Infinity, 0]);
+    for(let i = 1; i < dp.length; i++) {
         if(i <= 20 || i === 50) {
             dp[i] = [1, 1];
             continue;
@@ -29,5 +29,11 @@ function solution(target) {
                 dp[i] = [minDart, counter];
         }
     }
-    return dp[target];
+    
+    let result = [0, 0];
+    while(target > 310) {
+        result[0]++;
+        target -= 60;
+    }
+    return [result[0] + dp[target][0], result[1] + dp[target][1]];
 }
