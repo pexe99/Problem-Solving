@@ -1,14 +1,14 @@
 const OPERATIONS = { next: 10, prev: -10 };
 
 const getTimeNum = (timeStr) => {
-    const [hour, min] = timeStr.split(":");
-    return +hour * 60 + +min;
+    const [min, sec] = timeStr.split(":");
+    return +min * 60 + +sec;
 }
 
 const getTimeStr = (timeNum) => {
-    const hour = String(Math.floor(timeNum / 60)).padStart(2, '0');
-    const min = String(timeNum % 60).padStart(2, '0');
-    return `${hour}:${min}`;
+    const min = String(Math.floor(timeNum / 60)).padStart(2, '0');
+    const sec = String(timeNum % 60).padStart(2, '0');
+    return `${min}:${sec}`;
 }
 
 function solution(video_len, pos, op_start, op_end, commands) {
