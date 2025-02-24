@@ -1,5 +1,3 @@
-const CODE_LENGTH = 5;
-
 const getCombination = (array) => {
     const result = [];
     const combination = (current, array) => {
@@ -15,12 +13,9 @@ const getCombination = (array) => {
 }
 
 const isAvailable = (test, input, output) => {
-    test = new Set(test);
-    let result = 0;
-    input.forEach((number) => {
-        if(test.has(number)) result++;
-    });
-    return result === output;
+    const length = test.length + input.length;
+    const set = new Set(test.concat(input));
+    return output === length - set.size;
 }
 
 function solution(n, q, ans) {
@@ -32,9 +27,6 @@ function solution(n, q, ans) {
     }
     numbers = [...numbers];
     return getCombination(numbers).filter((current) => {
-        for(let i = 0; i < q.length; i++) {
-            if(!isAvailable(current, q[i], ans[i])) return false;
-        }
-        return true;
+        return q.every((test, index) => isAvailable(current, test, ans[index]));
     }).length;
 }
