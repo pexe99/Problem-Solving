@@ -9,19 +9,15 @@ const getGroup = (str) => {
 }
 
 const getJaccardSimilarity = (group1, group2) => {
-    if(group1.length + group2.length === 0) return 1;
-    let intersection = 0;
-    let union = group1.length + group2.length;
-    const temp = {};
-    group1.forEach((str) => temp[str] = (temp[str] || 0) + 1);
-    group2.forEach((str) => {
-        if(temp[str]) {
-            temp[str]--;
-            if(!temp[str]) delete temp[str];
-            intersection++;
-        }
+    const set = new Set([...group1, ...group2]);
+    let union = 0, intersection = 0;
+    set.forEach((item) => {
+        const has1 = group1.filter((el) => el === item).length;
+        const has2 = group2.filter((el) => el === item).length;
+        union += Math.max(has1, has2);
+        intersection += Math.min(has1, has2);
     });
-    return intersection / (union - intersection);
+    return union ? intersection / union : 1;
 }
 
 function solution(str1, str2) {
