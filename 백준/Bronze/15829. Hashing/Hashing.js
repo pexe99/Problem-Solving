@@ -12,8 +12,14 @@ const M = 1234567891;
 const N = +input[0];
 const string = input[1]
   .split("")
-  .map((char) => char.charCodeAt(char) - "a".charCodeAt() + 1);
+  .map((char) => char.charCodeAt() - "a".charCodeAt() + 1);
 
-console.log(
-  string.reduce((acc, cur, idx) => (acc + cur * Math.pow(r, idx)) % M, 0)
-);
+let hash = 0;
+let power = 1;
+
+for (let i = 0; i < N; i++) {
+  hash = (hash + string[i] * power) % M;
+  power = (power * r) % M;
+}
+
+console.log(hash);
