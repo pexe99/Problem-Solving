@@ -9,14 +9,22 @@ const input = require("fs")
 const MAXIMUM = 100000;
 const [N, K] = input[0].split(" ").map(Number);
 
-const deque = [];
+const deque = new Map();
 const dist = new Array(MAXIMUM + 1).fill(Infinity);
 
 dist[N] = 0;
-deque.push(N);
+deque.set(0, N);
+let front = 0,
+  back = 1;
 
-while (deque.length) {
-  const current = deque.shift();
+while (front < back) {
+  const current = deque.get(front);
+  deque.delete(front++);
+
+  if (current === K) {
+    console.log(dist[K]);
+    break;
+  }
 
   for (const [next, cost] of [
     [current * 2, 0],
@@ -26,9 +34,7 @@ while (deque.length) {
     if (next < 0 || MAXIMUM < next) continue;
     if (dist[next] > dist[current] + cost) {
       dist[next] = dist[current] + cost;
-      cost === 0 ? deque.unshift(next) : deque.push(next);
+      cost === 0 ? deque.set(--front, next) : deque.set(back++, next);
     }
   }
 }
-
-console.log(dist[K]);
