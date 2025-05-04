@@ -6,15 +6,26 @@ const input = require("fs")
   .trim()
   .split("\n");
 
-const target = "I" + "OI".repeat(+input.shift());
-const S = +input.shift();
+const N = +input[0];
+const S = +input[1];
+const str = input[2];
 
-console.log(
-  [...input[0]].reduce((counter, _, index) => {
-    if (index + target.length <= S) {
-      if (input[0].substring(index, index + target.length) === target)
-        return counter + 1;
+let result = 0;
+let i = 0;
+let count = 0;
+
+while (i < S - 2) {
+  if (str[i] === "I" && str[i + 1] === "O" && str[i + 2] === "I") {
+    count++;
+    i += 2;
+    if (count === N) {
+      result++;
+      count--;
     }
-    return counter;
-  }, 0)
-);
+  } else {
+    i++;
+    count = 0;
+  }
+}
+
+console.log(result);
