@@ -9,7 +9,7 @@ function solution(cards) {
             index = next;
             counter++;
         }
-        group.push(counter);
+        if(counter) group.push(counter);
     }
     group.sort((a, b) => a - b);
     return group.at(-1) * (group.at(-2) || 0);
