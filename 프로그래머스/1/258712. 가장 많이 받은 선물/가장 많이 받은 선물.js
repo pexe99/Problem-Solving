@@ -39,17 +39,14 @@ function solution(friends, gifts) {
         presentPoint[b]--;
     });
     
-    for(let a = 0; a < n - 1; a++) {
-        for(let b = a + 1; b < n; b++) {
-            if(currentMonth[a][b] < currentMonth[b][a])
-                nextMonth[b]++;
-            else if(currentMonth[b][a] < currentMonth[a][b])
+    for(let a = 0; a < n; a++) {
+        for(let b = 0; b < n; b++) {
+            if(currentMonth[a][b] > currentMonth[b][a])
                 nextMonth[a]++;
-            else if(presentPoint[a] < presentPoint[b])
-                nextMonth[b]++;
-            else if(presentPoint[b] < presentPoint[a])
-                nextMonth[a]++;
-            else continue;
+            else if(currentMonth[b][a] === currentMonth[a][b]) {
+                if(presentPoint[a] > presentPoint[b])
+                    nextMonth[a]++
+            }
         }
     }
     
