@@ -12,7 +12,7 @@ function solution(bridge_length, weight, truck_weights) {
         onBridge.forEach(([truck, counter], index) => {
             onBridge[index][1]++;
         });
-        if(bridgeLoad + truck_weights[0] <= weight && onBridge.length < bridge_length) {
+        if(bridgeLoad + truck_weights[0] <= weight) {
             bridgeLoad += truck_weights[0];
             onBridge.push([truck_weights.shift(), 0]);
         }
