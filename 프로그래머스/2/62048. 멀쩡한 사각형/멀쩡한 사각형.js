@@ -1,10 +1,7 @@
-const getGCD = (a, b) => {
-    if(b === 0) return a;
-    return getGCD(b, a % b);
-}
-
 function solution(w, h) {
-    const gcd = getGCD(w, h);
-    const diagonal = (w / gcd + h / gcd - 1) * gcd;
-    return BigInt(w * h) - BigInt(diagonal);
+    const slope = (h / w);
+    
+    let result = 0;
+    for(let i = 1; i <= w; i++) result += Math.ceil(slope * i);
+    return (w * h - result) * 2;
 }
