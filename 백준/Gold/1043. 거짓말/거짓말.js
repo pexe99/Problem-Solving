@@ -31,32 +31,22 @@ const party = input.slice(2).map((str) =>
     .split(" ")
     .slice(1)
     .map((e) => +e)
-    .sort((a, b) => a - b)
 );
 
 const root = Array.from({ length: N + 1 }, (_, i) => i);
-const find = (e) => {
-  if (root[e] === e) return e;
-  else return find(root[e]);
-};
+
+const find = (e) => (root[e] === e ? e : find(root[e]));
+
 const union = (a, b) => {
   const rootA = find(a);
   const rootB = find(b);
-  if (rootA === 0) root[rootB] = 0;
-  else if (rootB === 0) root[rootA] = 0;
-  else root[rootB] = rootA;
+  if (rootA !== rootB) root[rootB] = rootA;
 };
 
-for (const t of truth) union(0, t);
-for (const p of party) {
-  for (let i = 1; i < p.length; i++) {
-    union(p[i - 1], p[i]);
-  }
-}
-
 const truthTeller = new Set();
-for (let i = 1; i <= N; i++) {
-  if (find(i) === 0) truthTeller.add(i);
-}
+party.forEach((p) => p.forEach((e) => union(p[0], e)));
+truth.forEach((e) => truthTeller.add(find(e)));
 
-console.log(party.filter((p) => p.every((e) => !truthTeller.has(e))).length);
+console.log(
+  party.filter((p) => p.every((e) => !truthTeller.has(find(e)))).length
+);
