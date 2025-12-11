@@ -7,18 +7,18 @@ const input = fs
   .trim()
   .split("\n");
 
-const MAXIMUM = 1000000;
-
+let max = 0;
 const N = +input[0];
 const scores = {};
 const players = input[1].split(" ").map((e) => {
   const current = +e;
   scores[current] = 0;
+  max = Math.max(max, current);
   return current;
 });
 
 players.forEach((player) => {
-  for (let i = player; i <= MAXIMUM; i += player) {
+  for (let i = player * 2; i <= max; i += player) {
     if (scores[i] !== undefined) {
       scores[player]++;
       scores[i]--;
