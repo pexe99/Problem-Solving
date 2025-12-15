@@ -21,11 +21,8 @@ class AirPurifier {
     this.row = row;
     this.col = col;
     this.room = room;
-    this.purifier = [];
-
-    for (let i = 0; i < this.row; i++) {
-      if (this.room[i][0] === -1) this.purifier.push(i);
-    }
+    this.upperPuri = this.room.findIndex((row) => row[0] === -1);
+    this.lowerPuri = this.upperPuri + 1;
   }
 
   _isAvailable(r, c) {
@@ -33,39 +30,42 @@ class AirPurifier {
   }
 
   _diffusion() {
-    const target = [];
-    const nextRoom = this.room.map((row) => [...row]);
-    this.room.forEach((row, r) =>
-      row.forEach((e, c) => 0 < e && target.push([r, c]))
+    const nextRoom = Array.from({ length: this.row }, () =>
+      new Array(this.col).fill(0)
     );
+    nextRoom[this.upperPuri][0] = -1;
+    nextRoom[this.lowerPuri][0] = -1;
 
-    target.forEach(([r, c]) => {
-      let counter = 0;
-      const diffuseAmount = Math.floor(this.room[r][c] / 5);
-      DIRECTION.forEach(([dr, dc]) => {
-        const [nr, nc] = [r + dr, c + dc];
-        if (this._isAvailable(nr, nc) && this.room[nr][nc] !== -1) {
-          nextRoom[nr][nc] += diffuseAmount;
-          counter++;
-        }
-      });
-      nextRoom[r][c] -= diffuseAmount * counter;
-    });
+    this.room.forEach((row, r) =>
+      row.forEach((e, c) => {
+        if (e <= 0) return;
+        let counter = 0;
+        const diffuseAmount = Math.floor(e / 5);
+        DIRECTION.forEach(([dr, dc]) => {
+          const [nr, nc] = [r + dr, c + dc];
+          if (this._isAvailable(nr, nc) && this.room[nr][nc] !== -1) {
+            nextRoom[nr][nc] += diffuseAmount;
+            counter++;
+          }
+        });
+        nextRoom[r][c] += e - diffuseAmount * counter;
+      })
+    );
     this.room = nextRoom;
   }
 
   _circulation() {
-    let [tr, tc] = [this.purifier[0] - 1, 0];
+    let [tr, tc] = [this.upperPuri - 1, 0];
     while (0 < tr) this.room[tr][tc] = this.room[--tr][tc];
     while (tc < this.col - 1) this.room[tr][tc] = this.room[tr][++tc];
-    while (tr < this.purifier[0]) this.room[tr][tc] = this.room[++tr][tc];
+    while (tr < this.upperPuri) this.room[tr][tc] = this.room[++tr][tc];
     while (1 < tc) this.room[tr][tc] = this.room[tr][--tc];
     this.room[tr][tc] = 0;
 
-    let [br, bc] = [this.purifier[1] + 1, 0];
+    let [br, bc] = [this.lowerPuri + 1, 0];
     while (br < this.row - 1) this.room[br][bc] = this.room[++br][bc];
     while (bc < this.col - 1) this.room[br][bc] = this.room[br][++bc];
-    while (this.purifier[1] < br) this.room[br][bc] = this.room[--br][bc];
+    while (this.lowerPuri < br) this.room[br][bc] = this.room[--br][bc];
     while (1 < bc) this.room[br][bc] = this.room[br][--bc];
     this.room[br][bc] = 0;
   }
