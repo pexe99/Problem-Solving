@@ -10,26 +10,24 @@ const input = fs
 const [[N, M], ...edges] = input.map((str) => str.split(" ").map(Number));
 
 const solution = (N, M, edges) => {
-  const graph = Array.from({ length: N + 1 }, () => ({
-    in: new Set(),
-    out: new Set(),
-  }));
+  const inDegree = Array.from({ length: N + 1 }, (_, idx) => (idx ? 0 : null));
+  const graph = Array.from({ length: N + 1 }, (_, idx) =>
+    idx ? new Array() : null
+  );
   edges.forEach(([from, to]) => {
-    graph[from].out.add(to);
-    graph[to].in.add(from);
+    graph[from].push(to);
+    inDegree[to]++;
   });
 
   const queue = [];
-  for (let i = 1; i <= N; i++) {
-    if (graph[i].in.size === 0) queue.push(i);
-  }
+  inDegree.forEach((degree, idx) => degree === 0 && queue.push(idx));
 
   let index = 0;
   while (index < queue.length) {
     const curNode = queue[index++];
-    graph[curNode].out.forEach((next) => {
-      graph[next].in.delete(curNode);
-      if (graph[next].in.size === 0) queue.push(next);
+    graph[curNode].forEach((next) => {
+      inDegree[next]--;
+      if (inDegree[next] === 0) queue.push(next);
     });
   }
 
