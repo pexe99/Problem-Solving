@@ -59,63 +59,50 @@ class Heap {
   }
 }
 
-class Node {
-  constructor(index, distance) {
-    this.index = index;
-    this.distance = distance;
-  }
-}
-
 const getShortPath = (start, end, graph) => {
   const path = [end];
   const parents = new Array(graph.length).fill(null);
-  const priorityQueue = new Heap((a, b) => a.distance < b.distance);
+  const priorityQueue = new Heap((a, b) => a[1] < b[1]);
   const distance = Array.from({ length: graph.length }, (_, index) =>
     index === start ? 0 : Infinity
   );
 
-  priorityQueue.push(new Node(start, 0));
+  priorityQueue.push([start, 0]);
   while (priorityQueue.size()) {
-    const curNode = priorityQueue.pop();
-    if (curNode.distance > distance[curNode.index]) continue;
-    graph[curNode.index].forEach(([next, weight]) => {
-      const newDistance = curNode.distance + weight;
+    const [current, currentDistance] = priorityQueue.pop();
+    if (currentDistance > distance[current]) continue;
+    graph[current].forEach(([next, weight]) => {
+      const newDistance = currentDistance + weight;
       if (newDistance < distance[next]) {
         distance[next] = newDistance;
-        parents[next] = curNode.index;
-        priorityQueue.push(new Node(next, newDistance));
+        parents[next] = current;
+        priorityQueue.push([next, newDistance]);
       }
     });
   }
 
-  let current = end;
-  while (parents[current] !== null) {
-    path.push(parents[current]);
-    current = parents[current];
+  let iter = end;
+  while (parents[iter] !== null) {
+    path.push(parents[iter]);
+    iter = parents[iter];
   }
 
-  return [
-    distance[end],
-    path.length,
-    path
-      .map((e) => e + 1)
-      .reverse()
-      .join(" "),
-  ];
+  return [distance[end], path.map((e) => e + 1).reverse()];
 };
 
 const solution = (input) => {
   const N = +input.shift();
   const M = +input.shift();
   const [start, end] = input.pop().split(" ").map(Number);
-  const edges = input.map((string) => string.split(" ").map(Number));
+  const buses = input.map((string) => string.split(" ").map(Number));
 
   const graph = Array.from({ length: N }, () => []);
-  edges.forEach(([from, to, weight]) => {
+  buses.forEach(([from, to, weight]) => {
     graph[from - 1].push([to - 1, weight]);
   });
 
-  return getShortPath(start - 1, end - 1, graph).join("\n");
+  const [distance, path] = getShortPath(start - 1, end - 1, graph);
+  return `${distance}\n${path.length}\n${path.join(" ")}`;
 };
 
 console.log(solution(input));
