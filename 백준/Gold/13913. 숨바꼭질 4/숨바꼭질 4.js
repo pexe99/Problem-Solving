@@ -13,7 +13,7 @@ const [[N, K]] = input.map((string) => string.split(" ").map(Number));
 
 const solution = (N, K) => {
   const queue = [N];
-  const parents = [];
+  const parents = {};
   const distance = Array.from({ length: MAXIMUM + 1 }, (_, index) =>
     index === N ? 0 : Infinity
   );
