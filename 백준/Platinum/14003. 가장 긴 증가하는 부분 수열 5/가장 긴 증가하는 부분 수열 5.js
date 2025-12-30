@@ -9,36 +9,36 @@ const input = fs
 
 const [[N], sequence] = input.map((string) => string.split(" ").map(Number));
 
-const lowerBound = (target, array) => {
-  if (array.length === 0) return 0;
-  let [lo, hi] = [0, array.length];
-  while (lo < hi) {
-    const mid = (lo + hi) >> 1;
-    if (target <= array[mid]) hi = mid;
-    else lo = mid + 1;
-  }
-  return hi;
-};
-
 const solution = (N, sequence) => {
   const tails = [];
-  const log = [];
-  sequence.forEach((e) => {
-    const index = lowerBound(e, tails);
-    log.push([index, e]);
-    if (index === tails.length) tails.push(e);
-    else tails[index] = Math.min(tails[index], e);
+  const prev = new Array(N).fill(-1);
+
+  const lowerBound = (target) => {
+    if (tails.length === 0) return 0;
+    let [lo, hi] = [0, tails.length];
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (target <= sequence[tails[mid]]) hi = mid;
+      else lo = mid + 1;
+    }
+    return hi;
+  };
+
+  sequence.forEach((e, i) => {
+    const target = lowerBound(e, tails);
+    prev[i] = target === 0 ? -1 : tails[target - 1];
+    if (target === tails.length) tails.push(i);
+    else tails[target] = e < sequence[tails[target]] ? i : tails[target];
   });
 
   const LIS = [];
-  let iter = tails.length - 1;
-  log.reverse();
-  for (const [index, e] of log) {
-    if (iter < 0) break;
-    if (iter === index) LIS[iter--] = e;
+  let iter = tails[tails.length - 1];
+  while (0 <= iter) {
+    LIS.push(sequence[iter]);
+    iter = prev[iter];
   }
 
-  return `${LIS.length}\n${LIS.join(" ")}`;
+  return `${LIS.length}\n${LIS.reverse().join(" ")}`;
 };
 
 console.log(solution(N, sequence));
