@@ -7,27 +7,27 @@ const input = fs
   .trim()
   .split("\n");
 
-const [[N], ...edges] = input.map((string) => string.split(" ").map(Number));
+const [[V, E], ...edges] = input.map((e) => e.split(" ").map(Number));
 
-const solution = (N, edges) => {
+const solution = (V, E, edges) => {
   edges = edges
-    .map(([a, b, dist]) => (a < b ? [a, b, dist] : [b, a, dist]))
+    .map(([a, b, weight]) => (a < b ? [a, b, weight] : [b, a, weight]))
     .sort((a, b) => a[2] - b[2]);
 
-  const root = Array.from({ length: N }, (_, i) => i);
+  const root = Array.from({ length: V + 1 }, (_, i) => i);
   const find = (x) => (root[x] === x ? x : (root[x] = find(root[x])));
 
-  return edges.reduce((acc, [a, b, dist]) => {
+  return edges.reduce((res, [a, b, weight]) => {
     const rootA = find(a);
     const rootB = find(b);
 
     if (rootA !== rootB) {
       root[rootB] = rootA;
-      acc += dist;
+      res += weight;
     }
 
-    return acc;
+    return res;
   }, 0);
 };
 
-console.log(solution(N, edges));
+console.log(solution(V, E, edges));
