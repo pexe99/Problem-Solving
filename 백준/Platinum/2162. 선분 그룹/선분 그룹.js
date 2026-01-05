@@ -40,47 +40,29 @@ const isCross = (l1, l2) => {
 };
 
 const solution = (N, lines) => {
-  const graph = Array.from({ length: N }, () => []);
+  const root = Array.from({ length: N }, (_, i) => i);
+  const find = (x) => (x === root[x] ? x : (root[x] = find(root[x])));
 
   for (let i = 0; i < N - 1; i++) {
     for (let j = i + 1; j < N; j++) {
       if (isCross(lines[i], lines[j])) {
-        graph[i].push(j);
-        graph[j].push(i);
+        const rootA = find(i);
+        const rootB = find(j);
+
+        if (rootA !== rootB) root[rootB] = rootA;
       }
     }
   }
 
-  const visited = Array.from({ length: N }, () => false);
-
-  const BFS = (start) => {
-    const queue = [start];
-    visited[start] = true;
-
-    let index = 0;
-    while (index < queue.length) {
-      const current = queue[index++];
-      graph[current].forEach((next) => {
-        if (!visited[next]) {
-          visited[next] = true;
-          queue.push(next);
-        }
-      });
-    }
-
-    return queue.length;
-  };
-
-  let components = 0;
-  let maxSize = 0;
+  const components = {};
   for (let i = 0; i < N; i++) {
-    if (visited[i]) continue;
-    const size = BFS(i);
-    components++;
-    maxSize = Math.max(maxSize, size);
+    const current = find(i);
+    components[current] = (components[current] || 0) + 1;
   }
 
-  return `${components}\n${maxSize}`;
+  return `${Object.keys(components).length}\n${Math.max(
+    ...Object.values(components)
+  )}`;
 };
 
 console.log(solution(N, lines));
