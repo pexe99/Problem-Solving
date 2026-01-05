@@ -7,40 +7,44 @@ const input = fs
   .trim()
   .split("\n");
 
-const [[N], ...coordinates] = input.map((e) => e.split(" ").map(Number));
+const [[N], ...lines] = input.map((e) => e.split(" ").map(Number));
 
 const CCW = (ax, ay, bx, by, cx, cy) => {
-  const result = ax * by + bx * cy + cx * ay - (ay * bx + by * cx + cy * ax);
-  if (result < 0) return -1;
-  else if (result === 0) return 0;
-  else return 1;
+  const z = ax * by + bx * cy + cx * ay - (ay * bx + by * cx + cy * ax);
+  return z > 0 ? 1 : z === 0 ? 0 : -1;
 };
 
-const isCross = (line1, line2) => {
-  const [ax, ay, bx, by] = line1;
-  const [cx, cy, dx, dy] = line2;
-  if (
-    CCW(ax, ay, bx, by, cx, cy) * CCW(ax, ay, bx, by, dx, dy) <= 0 &&
-    CCW(cx, cy, dx, dy, ax, ay) * CCW(cx, cy, dx, dy, bx, by) <= 0
-  ) {
-    if (
-      (Math.max(cx, dx) < ax && Math.max(cx, dx) < bx) ||
-      (Math.min(cx, dx) > ax && Math.min(cx, dx) > bx) ||
-      (Math.max(cy, dy) < ay && Math.max(cy, dy) < by) ||
-      (Math.min(cy, dy) > ay && Math.min(cy, dy) > by)
-    )
-      return false;
-    else return true;
-  }
-  return false;
+const bboxOverlap = (l1, l2) => {
+  const [ax, ay, bx, by] = l1;
+  const [cx, cy, dx, dy] = l2;
+
+  return !(
+    Math.max(ax, bx) < Math.min(cx, dx) ||
+    Math.max(cx, dx) < Math.min(ax, bx) ||
+    Math.max(ay, by) < Math.min(cy, dy) ||
+    Math.max(cy, dy) < Math.min(ay, by)
+  );
 };
 
-const solution = (N, coordinates) => {
+const isCross = (l1, l2) => {
+  const [ax, ay, bx, by] = l1;
+  const [cx, cy, dx, dy] = l2;
+
+  const ab_c = CCW(ax, ay, bx, by, cx, cy);
+  const ab_d = CCW(ax, ay, bx, by, dx, dy);
+  const cd_a = CCW(cx, cy, dx, dy, ax, ay);
+  const cd_b = CCW(cx, cy, dx, dy, bx, by);
+
+  if (ab_c * ab_d > 0 || cd_a * cd_b > 0) return false;
+  return bboxOverlap(l1, l2);
+};
+
+const solution = (N, lines) => {
   const graph = Array.from({ length: N }, () => []);
 
   for (let i = 0; i < N - 1; i++) {
     for (let j = i + 1; j < N; j++) {
-      if (isCross(coordinates[i], coordinates[j])) {
+      if (isCross(lines[i], lines[j])) {
         graph[i].push(j);
         graph[j].push(i);
       }
@@ -48,11 +52,11 @@ const solution = (N, coordinates) => {
   }
 
   const visited = Array.from({ length: N }, () => false);
-  const BFS = (start) => {
-    if (visited[start] === true) return 0;
 
+  const BFS = (start) => {
     const queue = [start];
     visited[start] = true;
+
     let index = 0;
     while (index < queue.length) {
       const current = queue[index++];
@@ -67,16 +71,16 @@ const solution = (N, coordinates) => {
     return queue.length;
   };
 
-  let [counter, maximum] = [0, 0];
+  let components = 0;
+  let maxSize = 0;
   for (let i = 0; i < N; i++) {
-    const current = BFS(i);
-    if (current) {
-      counter++;
-      maximum = Math.max(maximum, current);
-    }
+    if (visited[i]) continue;
+    const size = BFS(i);
+    components++;
+    maxSize = Math.max(maxSize, size);
   }
 
-  return `${counter}\n${maximum}`;
+  return `${components}\n${maxSize}`;
 };
 
-console.log(solution(N, coordinates));
+console.log(solution(N, lines));
