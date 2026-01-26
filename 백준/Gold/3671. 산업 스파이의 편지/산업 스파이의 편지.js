@@ -10,31 +10,32 @@ const input = fs
 const c = +input.shift();
 const testcases = input.map((e) => [...e]);
 
-const MAXIMUM = 9999999;
+const isPrime = (number) => {
+  if (number < 2) return false;
+  for (let i = 2; i <= Math.sqrt(number); i++)
+    if (number % i === 0) return false;
+  return true;
+};
 
-const getCombination = (array) => {
-  const result = new Set();
-  const combination = (current, rest) => {
-    rest.forEach((e, i) => {
-      result.add(Number(current.join("") + e));
-      combination([...current, e], [...rest.slice(0, i), ...rest.slice(i + 1)]);
-    });
+const getPrimeCount = (array) => {
+  const primeSet = new Set();
+  const visited = new Array(array.length).fill(false);
+  const backtrack = (number) => {
+    for (let i = 0; i < array.length; i++) {
+      if (visited[i]) continue;
+      const current = number + array[i];
+      if (!primeSet.has(+current) && isPrime(+current)) primeSet.add(+current);
+      visited[i] = true;
+      backtrack(current);
+      visited[i] = false;
+    }
   };
-  combination([], array);
-  return result;
+  backtrack("", array);
+  return primeSet.size;
 };
 
 const solution = (c, testcases) => {
-  const isPrime = new Array(MAXIMUM + 1).fill(true);
-
-  isPrime[0] = isPrime[1] = false;
-  for (let i = 2; i <= MAXIMUM; i++) {
-    for (let j = i * 2; j <= MAXIMUM; j += i) isPrime[j] = false;
-  }
-
-  return testcases
-    .map((t) => [...getCombination(t)].filter((e) => isPrime[e]).length)
-    .join("\n");
+  return testcases.map((test) => getPrimeCount(test)).join("\n");
 };
 
 console.log(solution(c, testcases));
