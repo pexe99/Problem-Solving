@@ -10,50 +10,52 @@ const input = fs
 const sudoku = input.map((e) => e.split("").map(Number));
 
 const toggle = (i, j, num, used) => {
+  const mask = 1 << num;
   const areaIndex = Math.floor(i / 3) * 3 + Math.floor(j / 3);
-  used.row[i][num] = !used.row[i][num];
-  used.col[j][num] = !used.col[j][num];
-  used.area[areaIndex][num] = !used.area[areaIndex][num];
+  used.row[i] ^= mask;
+  used.col[j] ^= mask;
+  used.area[areaIndex] ^= mask;
 };
 
 const isAvailable = (i, j, num, used) => {
+  const mask = 1 << num;
   const areaIndex = Math.floor(i / 3) * 3 + Math.floor(j / 3);
-  return !used.row[i][num] && !used.col[j][num] && !used.area[areaIndex][num];
+  return (
+    !(used.row[i] & mask) &&
+    !(used.col[j] & mask) &&
+    !(used.area[areaIndex] & mask)
+  );
 };
 
-const fillSudoku = (used, sudoku) => {
-  let finish = false;
-
-  const backtracking = (i, j) => {
-    if (i === 9) finish = true;
-    else if (sudoku[i][j])
-      j < 8 ? backtracking(i, j + 1) : backtracking(i + 1, 0);
-    else {
-      for (let n = 1; n <= 9; n++) {
-        if (isAvailable(i, j, n, used)) {
-          sudoku[i][j] = n;
-          toggle(i, j, n, used);
-          j < 8 ? backtracking(i, j + 1) : backtracking(i + 1, 0);
-          if (finish) return;
-          sudoku[i][j] = 0;
-          toggle(i, j, n, used);
-        }
-      }
+const fillSudoku = (index, empties, used, sudoku) => {
+  if (empties.length <= index) return true;
+  const [i, j] = empties[index];
+  for (let num = 1; num <= 9; num++) {
+    if (isAvailable(i, j, num, used)) {
+      sudoku[i][j] = num;
+      toggle(i, j, num, used);
+      if (fillSudoku(index + 1, empties, used, sudoku)) return true;
+      sudoku[i][j] = 0;
+      toggle(i, j, num, used);
     }
-  };
-
-  backtracking(0, 0);
+  }
+  return false;
 };
 
 const solution = (sudoku) => {
-  const used = { row: null, col: null, area: null };
-  Object.keys(used).forEach(
-    (key) =>
-      (used[key] = Array.from({ length: 9 }, () => new Array(10).fill(false)))
-  );
+  const used = {};
+  const empties = [];
+  used.row = new Array(9).fill(0 << 9);
+  used.col = new Array(9).fill(0 << 9);
+  used.area = new Array(9).fill(0 << 9);
 
-  sudoku.forEach((row, i) => row.forEach((num, j) => toggle(i, j, num, used)));
-  fillSudoku(used, sudoku);
+  sudoku.forEach((row, i) =>
+    row.forEach((num, j) => {
+      if (num === 0) empties.push([i, j]);
+      toggle(i, j, num, used);
+    })
+  );
+  fillSudoku(0, empties, used, sudoku);
 
   return sudoku.map((row) => row.join("")).join("\n");
 };
