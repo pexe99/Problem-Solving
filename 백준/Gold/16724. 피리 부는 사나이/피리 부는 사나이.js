@@ -10,32 +10,35 @@ const input = fs
 const [N, M] = input.shift().split(" ").map(Number);
 const map = input.join("").split("");
 
-const solution = (N, M, map) => {
-  const MOVE = {
-    L: -1,
-    R: 1,
-    U: -M,
-    D: M,
-  };
+const MOVE = {
+  L: -1,
+  R: 1,
+  U: -M,
+  D: M,
+};
 
-  const root = Array.from({ length: N * M }, (_, index) => index);
-
-  const find = (v) => (root[v] = root[v] === v ? v : find(root[v]));
-
-  const union = (a, b) => {
-    const rootA = find(a);
-    const rootB = find(b);
-    if (rootA !== rootB) root[rootB] = rootA;
-  };
-
-  for (let i = 0; i < N * M; i++) {
-    const [a, b] = [i, i + MOVE[map[i]]];
-    union(b, a);
+const DFS = (index, mark, map) => {
+  let curIndex = index + MOVE[map[index]];
+  map[index] = mark;
+  while (index !== curIndex) {
+    if (typeof map[curIndex] === "number") return +(map[curIndex] === mark);
+    const nextIndex = curIndex + MOVE[map[curIndex]];
+    map[curIndex] = mark;
+    curIndex = nextIndex;
   }
+  return 1;
+};
 
-  root.forEach((_, index) => find(index));
-
-  return new Set(root).size;
+const solution = (N, M, map) => {
+  let answer = 0;
+  let mark = 1;
+  for (let i = 0; i < N * M; i++) {
+    if (typeof map[i] === "string") {
+      answer += DFS(i, mark, map);
+      mark++;
+    }
+  }
+  return answer;
 };
 
 console.log(solution(N, M, map));
