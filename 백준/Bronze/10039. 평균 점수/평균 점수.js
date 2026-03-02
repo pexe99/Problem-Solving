@@ -1,0 +1,10 @@
+const fs = require("fs");
+const input = fs
+  .readFileSync(process.platform === "linux" ? 0 : "input.txt", "utf8")
+  .trim()
+  .split("\n");
+
+console.log(
+  input.map((e) => (e < 40 ? 40 : e)).reduce((acc, cur) => acc + +cur, 0) /
+    input.length
+);
