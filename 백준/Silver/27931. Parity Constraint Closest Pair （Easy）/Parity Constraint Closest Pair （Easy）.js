@@ -8,14 +8,20 @@ const [[N], coordinates] = input.map((line) => line.split(" ").map(Number));
 
 const solution = (N, coordinates) => {
   let [evenMin, oddMin] = [Infinity, Infinity];
-  for (let i = 0; i < N - 1; i++) {
-    for (let j = i + 1; j < N; j++) {
-      const diff = Math.abs(coordinates[i] - coordinates[j]);
-      diff % 2
-        ? (oddMin = Math.min(oddMin, diff))
-        : (evenMin = Math.min(evenMin, diff));
-    }
-  }
+  let [lastEven, lastOdd] = [null, null];
+  coordinates
+    .sort((a, b) => a - b)
+    .forEach((cur, idx, arr) => {
+      if (cur % 2 === 0) {
+        lastEven !== null && (evenMin = Math.min(evenMin, cur - lastEven));
+        lastOdd !== null && (oddMin = Math.min(oddMin, cur - lastOdd));
+        lastEven = cur;
+      } else {
+        lastOdd !== null && (evenMin = Math.min(evenMin, cur - lastOdd));
+        lastEven !== null && (oddMin = Math.min(oddMin, cur - lastEven));
+        lastOdd = cur;
+      }
+    });
   return `${evenMin === Infinity ? -1 : evenMin} ${
     oddMin === Infinity ? -1 : oddMin
   }`;
