@@ -7,15 +7,10 @@ const input = fs
 const [[N], path] = input.map((line) => line.split(" ").map(Number));
 
 const solution = (N, path) => {
-  const parent = [];
-  const visited = new Set();
-  for (let i = 0; i < N; i++) {
-    if (i === 0) parent[path[i]] = -1;
-    else {
-      if (!visited.has(path[i])) parent[path[i]] = path[i - 1];
-    }
-    visited.add(path[i]);
-  }
+  const parent = new Array(Math.max(...path) + 1).fill(null);
+  parent[path[0]] = -1;
+  for (let i = 1; i < N; i++)
+    parent[path[i]] === null && (parent[path[i]] = path[i - 1]);
   return `${parent.length}\n${parent.join(" ")}`;
 };
 
