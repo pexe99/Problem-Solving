@@ -7,26 +7,26 @@ const input = fs
 const solution = (N, spectators) => {
   const rowMask = new Array(N).fill(0);
   const colMask = new Array(N).fill(0);
+
   for (let i = 0; i < N; i++) {
     for (let j = 0; j < N; j++) {
-      rowMask[i] ^= 1 << (spectators[i][j].charCodeAt(0) - "A".charCodeAt(0));
-      colMask[j] ^= 1 << (spectators[i][j].charCodeAt(0) - "A".charCodeAt(0));
+      const bit = 1 << (spectators[i][j].charCodeAt(0) - 65);
+      rowMask[i] ^= bit;
+      colMask[j] ^= bit;
     }
   }
 
-  const [teamMask, teamSet] =
-    rowMask[0] === rowMask[1]
-      ? [rowMask[0], new Set([...spectators[0]])]
-      : [rowMask[2], new Set([...spectators[2]])];
+  const teamMask = rowMask[0] === rowMask[1] ? rowMask[0] : rowMask[2];
 
   for (let i = 0; i < N; i++) {
+    if (rowMask[i] === teamMask) continue;
     for (let j = 0; j < N; j++) {
-      if (teamMask !== rowMask[i] && teamMask !== colMask[j])
-        console.log(
-          `${i + 1} ${j + 1} ${
-            [...teamSet].filter((e) => !new Set([...spectators[i]]).has(e))[0]
-          }`
-        );
+      if (colMask[j] !== teamMask) {
+        const missingBit =
+          teamMask ^ (rowMask[i] ^ (1 << (spectators[i][j].charCodeAt(0) - 65)));
+        const teamChar = String.fromCharCode(65 + Math.log2(missingBit));
+        console.log(`${i + 1} ${j + 1} ${teamChar}`);
+      }
     }
   }
 };
