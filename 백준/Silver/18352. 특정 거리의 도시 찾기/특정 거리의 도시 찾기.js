@@ -10,23 +10,19 @@ const [[N, M, K, X], ...edges] = input.map((line) =>
 
 const solution = (N, M, K, X, edges) => {
   const queue = [X];
-  const visited = new Array(N + 1).fill(false);
-  const distance = new Array(N + 1).fill(Infinity);
+  const distance = new Array(N + 1).fill(-1);
   const graph = Array.from({ length: N + 1 }, () => []);
-
   edges.forEach(([a, b]) => graph[a].push(b));
 
   let index = 0;
   distance[X] = 0;
-  visited[X] = true;
   while (index < queue.length) {
     const current = queue[index++];
     graph[current].forEach((next) => {
-      if (!visited[next]) {
-        visited[next] = true;
+      if (distance[next] === -1) {
+        distance[next] = distance[current] + 1;
         queue.push(next);
       }
-      distance[next] = Math.min(distance[next], distance[current] + 1);
     });
   }
 
