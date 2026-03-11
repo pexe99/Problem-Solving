@@ -26,10 +26,10 @@ const solution = (N, M, K, X, edges) => {
     });
   }
 
-  const result = distance.reduce(
-    (acc, cur, idx) => (cur === K ? [...acc, idx] : acc),
-    []
-  );
+  const result = distance.reduce((acc, cur, idx) => {
+    if (cur === K) acc.push(idx);
+    return acc;
+  }, []);
 
   return result.length === 0 ? -1 : result.join("\n");
 };
