@@ -6,24 +6,23 @@ const input = fs
 
 const [N, original, ...words] = input;
 
-const solution = (N, original, words) => {
-  const originalCounter = {};
-  [...original].forEach(
-    (char) => (originalCounter[char] = (originalCounter[char] || 0) + 1)
-  );
+const getAlphabetCount = (word) => {
+  const result = new Array(26).fill(0);
+  [...word].forEach((char) => result[char.charCodeAt(0) - 65]++);
+  return result;
+};
 
+const getDiffAlphabetCount = (count1, count2) => {
+  return count1.reduce((acc, cur, idx) => acc + Math.abs(cur - count2[idx]), 0);
+};
+
+const solution = (N, original, words) => {
+  const originalCount = getAlphabetCount(original);
   return words.filter((word) => {
-    let diff = 0;
-    if (word.length < original.length)
-      word += "*".repeat(original.length - word.length);
-    const currentCounter = { ...originalCounter };
-    [...word].forEach((char) => {
-      if (currentCounter.hasOwnProperty(char)) {
-        if (currentCounter[char] === 1) delete currentCounter[char];
-        else currentCounter[char]--;
-      } else diff++;
-    });
-    return diff <= 1;
+    const diff = getDiffAlphabetCount(originalCount, getAlphabetCount(word));
+    if (original.length === word.length) return diff === 0 || diff === 2;
+    else if (Math.abs(original.length - word.length) === 1) return diff === 1;
+    else return false;
   }).length;
 };
 
