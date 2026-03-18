@@ -7,37 +7,38 @@ const input = fs
 const [[N, M], ...invest] = input.map((line) => line.split(" ").map(Number));
 
 const solution = (N, M, invest) => {
-  const investInfo = {};
-  invest.forEach(([amount, ...info]) => (investInfo[amount] = info));
-  const dp = Array.from({ length: M }, () =>
-    Array.from({ length: N + 1 }, () => ({
-      total: 0,
-      amount: new Array(M).fill(0),
-    }))
+  const dp = Array.from({ length: M + 1 }, () => new Array(N + 1).fill(0));
+  const track = Array.from({ length: M + 1 }, () => new Array(N + 1).fill(0));
+  const investInfo = Array.from({ length: M + 1 }, () =>
+    new Array(N + 1).fill(0)
+  );
+  invest.forEach(([amount, ...info]) =>
+    info.forEach((cur, idx) => {
+      if (idx + 1 > M) return;
+      investInfo[idx + 1][amount] = cur;
+    })
   );
 
-  for (let company = 0; company < M; company++) {
+  for (let company = 1; company <= M; company++) {
     for (let amount = 1; amount <= N; amount++) {
-      if (company === 0) {
-        dp[company][amount].total = investInfo[amount][company];
-        dp[company][amount].amount[company] = amount;
-      } else {
-        for (let k = 0; k <= amount; k++) {
-          const profit = k === 0 ? 0 : investInfo[k][company];
-          const current = dp[company - 1][amount - k].total + profit;
-          if (dp[company][amount].total < current) {
-            dp[company][amount].total = current;
-            dp[company][amount].amount = [
-              ...dp[company - 1][amount - k].amount,
-            ];
-            dp[company][amount].amount[company] += k;
-          }
+      for (let k = 0; k <= amount; k++) {
+        const value = dp[company - 1][amount - k] + investInfo[company][k];
+        if (dp[company][amount] < value) {
+          dp[company][amount] = value;
+          track[company][amount] = k;
         }
       }
     }
   }
 
-  return `${dp[M - 1][N].total}\n${dp[M - 1][N].amount.join(" ")}`;
+  const investResult = [];
+  let remain = N;
+  for (let company = M; company >= 1; company--) {
+    investResult.push(track[company][remain]);
+    remain -= track[company][remain] || 0;
+  }
+
+  return `${dp[M][N]}\n${investResult.reverse().join(" ")}`;
 };
 
 console.log(solution(N, M, invest));
