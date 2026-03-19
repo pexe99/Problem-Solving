@@ -1,13 +1,67 @@
-const fs = require("fs");
-const input = fs
-  .readFileSync(process.platform === "linux" ? 0 : "input.txt", "utf-8")
-  .trim()
-  .split("\n");
+class IO {
+  constructor() {
+    this.fs = require("fs");
 
-const N = +input.shift();
-const edges = input.splice(0, N - 1).map((line) => line.split(" ").map(Number));
-const M = +input.shift();
-const nodes = input.map((line) => line.split(" ").map(Number));
+    this.inputOffset = 0;
+    this.inputBuffer = this.fs.readFileSync(
+      process.platform === "linux" ? 0 : "input.txt"
+    );
+
+    this.outputOffset = 0;
+    this.outputBuffer = new Uint8Array(12 * 5000000);
+  }
+
+  readInteger() {
+    let result = 0;
+
+    while (
+      this.inputOffset < this.inputBuffer.length &&
+      this.inputBuffer[this.inputOffset] <= 32
+    ) {
+      this.inputOffset++;
+    }
+
+    if (this.inputOffset >= this.inputBuffer.length) return null;
+
+    while (
+      this.inputOffset < this.inputBuffer.length &&
+      this.inputBuffer[this.inputOffset] >= 48 &&
+      this.inputBuffer[this.inputOffset] <= 57
+    ) {
+      result = result * 10 + (this.inputBuffer[this.inputOffset++] - 48);
+    }
+
+    return result;
+  }
+
+  addOutputBuffer(number) {
+    if (number === 0) {
+      this.outputBuffer[this.outputOffset++] = 48;
+      this.outputBuffer[this.outputOffset++] = 32;
+      return;
+    }
+
+    let remain = number;
+    let started = false;
+    let divisor = 1000000000;
+
+    while (divisor > 0) {
+      if (number >= divisor || started) {
+        const digit = (remain / divisor) | 0;
+        this.outputBuffer[this.outputOffset++] = 48 + digit;
+        remain %= divisor;
+        started = true;
+      }
+      divisor = (divisor / 10) | 0;
+    }
+
+    this.outputBuffer[this.outputOffset++] = 10;
+  }
+
+  writeOutputBuffer() {
+    this.fs.writeSync(1, this.outputBuffer.subarray(0, this.outputOffset - 1));
+  }
+}
 
 const query = (LOG, parent, depth, a, b) => {
   if (depth[b] < depth[a]) [a, b] = [b, a];
@@ -27,13 +81,18 @@ const query = (LOG, parent, depth, a, b) => {
   return parent[0][a];
 };
 
-const solution = (N, edges, M, nodes) => {
+const solution = () => {
+  const io = new IO();
+
+  const N = io.readInteger();
   const depth = new Int32Array(N + 1).fill(-1);
   const graph = Array.from({ length: N + 1 }, () => []);
-  edges.forEach(([a, b]) => {
+  for (let i = 0; i < N - 1; i++) {
+    const a = io.readInteger();
+    const b = io.readInteger();
     graph[a].push(b);
     graph[b].push(a);
-  });
+  }
 
   const LOG = Math.ceil(Math.log2(N));
   const parent = Array.from({ length: LOG + 1 }, () => new Int32Array(N + 1));
@@ -56,10 +115,14 @@ const solution = (N, edges, M, nodes) => {
     for (let j = 1; j <= N; j++) parent[i][j] = parent[i - 1][parent[i - 1][j]];
   }
 
-  const result = [];
-  nodes.forEach(([a, b]) => result.push(query(LOG, parent, depth, a, b)));
+  const M = io.readInteger();
+  for (let i = 0; i < M; i++) {
+    const a = io.readInteger();
+    const b = io.readInteger();
+    io.addOutputBuffer(query(LOG, parent, depth, a, b));
+  }
 
-  return result.join("\n");
+  io.writeOutputBuffer();
 };
 
-console.log(solution(N, edges, M, nodes));
+solution();
