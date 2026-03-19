@@ -1,95 +1,74 @@
 const fs = require("fs");
-const input = fs
-  .readFileSync(process.platform === "linux" ? 0 : "input.txt", "utf8")
-  .trim()
-  .split("\n");
 
-const [[N, L], A] = input.map((line) => line.split(" ").map(Number));
-
-class Node {
-  constructor(value, index) {
-    this.value = value;
-    this.index = index;
-  }
-}
-
-class Heap {
-  constructor(compare) {
-    this.heap = [null];
-    this.compare = compare;
+class IO {
+  constructor() {
+    this.offset = 0;
+    this.fs = require("fs");
+    this.inputBuffer = fs.readFileSync(
+      process.platform === "linux" ? 0 : "input.txt"
+    );
+    this.outputBuffer = "";
   }
 
-  _swap(a, b) {
-    [this.heap[a], this.heap[b]] = [this.heap[b], this.heap[a]];
-  }
-
-  size() {
-    return this.heap.length - 1;
-  }
-
-  peek() {
-    return this.size() === 0 ? undefined : this.heap[1];
-  }
-
-  push(value) {
-    this.heap.push(value);
-    let current = this.heap.length - 1;
-    let parent = current >> 1;
+  readInteger() {
+    let result = 0;
+    let isMinus = false;
 
     while (
-      parent !== 0 &&
-      this.compare(this.heap[current], this.heap[parent])
-    ) {
-      this._swap(current, parent);
-      current = parent;
-      parent = current >> 1;
+      this.offset < this.inputBuffer.length &&
+      this.inputBuffer[this.offset] <= 32
+    )
+      this.offset++;
+    if (this.inputBuffer.length <= this.offset) return null;
+
+    if (this.inputBuffer[this.offset] === 45) {
+      isMinus = true;
+      this.offset++;
+    }
+
+    while (
+      this.offset < this.inputBuffer.length &&
+      32 < this.inputBuffer[this.offset]
+    )
+      result = result * 10 + (this.inputBuffer[this.offset++] - 48);
+
+    return isMinus ? -result : result;
+  }
+
+  addOutputBuffer(string) {
+    this.outputBuffer += string + " ";
+    if (this.outputBuffer.length % 10000 === 0) {
+      process.stdout.write(this.outputBuffer);
+      this.outputBuffer = "";
     }
   }
 
-  pop() {
-    if (this.heap.length === 1) return null;
-    if (this.heap.length === 2) return this.heap.pop();
-
-    const root = this.heap[1];
-    this.heap[1] = this.heap.pop();
-
-    let current = 1;
-    const size = this.heap.length;
-
-    while (true) {
-      let [target, left, right] = [current, current * 2, current * 2 + 1];
-      if (left < size && this.compare(this.heap[left], this.heap[target]))
-        target = left;
-      if (right < size && this.compare(this.heap[right], this.heap[target]))
-        target = right;
-      if (target === current) break;
-      this._swap(target, current);
-      current = target;
-    }
-    return root;
+  writeOutputBuffer() {
+    process.stdout.write(this.outputBuffer.trimEnd());
   }
 }
 
-const solution = (N, L, A) => {
+const solution = () => {
+  const io = new IO();
+  const N = io.readInteger();
+  const L = io.readInteger();
+  const index = new Int32Array(N);
+  const value = new Int32Array(N);
+
+  let head = 0;
+  let tail = 0;
   let result = "";
-  const pq = new Heap((nodeA, nodeB) => nodeA.value < nodeB.value);
 
-  A.forEach((value, index) => {
-    pq.push(new Node(value, index));
-    while (true) {
-      if (pq.peek().index < index - L + 1) pq.pop();
-      else {
-        result += pq.peek().value + " ";
-        break;
-      }
-    }
-    if (result.length % 10000 === 0) {
-      process.stdout.write(result);
-      result = "";
-    }
-  });
+  for (let i = 0; i < N; i++) {
+    const current = io.readInteger();
+    while (head < tail && current < value[tail - 1]) tail--;
+    index[tail] = i;
+    value[tail++] = current;
+    while (head < tail && index[head] < i - L + 1) head++;
+    io.addOutputBuffer(value[head]);
+  }
 
-  process.stdout.write(result.trimEnd());
+  io.writeOutputBuffer();
 };
 
-solution(N, L, A);
+solution();
