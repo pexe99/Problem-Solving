@@ -18,8 +18,9 @@ class IO {
     while (
       this.inputOffset < this.inputBuffer.length &&
       this.inputBuffer[this.inputOffset] <= 32
-    )
+    ) {
       this.inputOffset++;
+    }
 
     if (this.inputOffset >= this.inputBuffer.length) return null;
 
@@ -30,61 +31,41 @@ class IO {
 
     while (
       this.inputOffset < this.inputBuffer.length &&
-      this.inputBuffer[this.inputOffset] > 32
-    )
+      this.inputBuffer[this.inputOffset] >= 48 &&
+      this.inputBuffer[this.inputOffset] <= 57
+    ) {
       result = result * 10 + (this.inputBuffer[this.inputOffset++] - 48);
+    }
 
     return isMinus ? -result : result;
   }
 
-  addOutputBuffer(num) {
-    let v = num;
+  addOutputBuffer(number) {
+    if (number === 0) {
+      this.outputBuffer[this.outputOffset++] = 48;
+      this.outputBuffer[this.outputOffset++] = 32;
+      return;
+    }
 
-    if (v < 0) {
+    if (number < 0) {
       this.outputBuffer[this.outputOffset++] = 45;
-      v = -v;
+      number = -number;
     }
 
-    let r = v;
+    let remain = number;
+    let started = false;
+    let divisor = 1000000000;
 
-    if (v >= 1000000000) {
-      this.outputBuffer[this.outputOffset++] = 48 + ((r / 1000000000) | 0);
-      r %= 1000000000;
-    }
-    if (v >= 100000000) {
-      this.outputBuffer[this.outputOffset++] = 48 + ((r / 100000000) | 0);
-      r %= 100000000;
-    }
-    if (v >= 10000000) {
-      this.outputBuffer[this.outputOffset++] = 48 + ((r / 10000000) | 0);
-      r %= 10000000;
-    }
-    if (v >= 1000000) {
-      this.outputBuffer[this.outputOffset++] = 48 + ((r / 1000000) | 0);
-      r %= 1000000;
-    }
-    if (v >= 100000) {
-      this.outputBuffer[this.outputOffset++] = 48 + ((r / 100000) | 0);
-      r %= 100000;
-    }
-    if (v >= 10000) {
-      this.outputBuffer[this.outputOffset++] = 48 + ((r / 10000) | 0);
-      r %= 10000;
-    }
-    if (v >= 1000) {
-      this.outputBuffer[this.outputOffset++] = 48 + ((r / 1000) | 0);
-      r %= 1000;
-    }
-    if (v >= 100) {
-      this.outputBuffer[this.outputOffset++] = 48 + ((r / 100) | 0);
-      r %= 100;
-    }
-    if (v >= 10) {
-      this.outputBuffer[this.outputOffset++] = 48 + ((r / 10) | 0);
-      r %= 10;
+    while (divisor > 0) {
+      if (number >= divisor || started) {
+        const digit = (remain / divisor) | 0;
+        this.outputBuffer[this.outputOffset++] = 48 + digit;
+        remain %= divisor;
+        started = true;
+      }
+      divisor = (divisor / 10) | 0;
     }
 
-    this.outputBuffer[this.outputOffset++] = 48 + r;
     this.outputBuffer[this.outputOffset++] = 32;
   }
 
