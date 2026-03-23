@@ -1,35 +1,128 @@
-const fs = require("fs");
-const input = fs
-  .readFileSync(process.platform === "linux" ? 0 : "input.txt", "utf-8")
-  .trim()
-  .split("\n");
+class IO {
+  constructor() {
+    this.fs = require("fs");
 
-/*
-[category]
-LCA, Tree, Sparse Table
+    this.inputOffset = 0;
+    this.inputBuffer = this.fs.readFileSync(
+      process.platform === "linux" ? 0 : "input.txt"
+    );
 
-[input]
-N: 도시의 개수
-roads: A, B 도시를 잇는 길이 C인 도로 N-1개
-K: 도시 쌍의 개수
-cities: D, E 도시 쌍
+    this.outputOffset = 0;
+    this.outputBuffer = new Uint8Array(12 * 5000000);
+  }
 
-[output]
-각 D, E 도시 쌍마다 두 도시 사이 경로에서
-가장 짧은 도로와 가장 긴 도로의 길이를
-공백으로 구분해 각 줄마다 출력
+  readInteger() {
+    let result = 0;
 
-[solution]
-두 도시를 잇는 경로는 결국 D > LCA > E라 할 수 있다.
-따라서 
-*/
+    while (
+      this.inputOffset < this.inputBuffer.length &&
+      this.inputBuffer[this.inputOffset] <= 32
+    ) {
+      this.inputOffset++;
+    }
 
-const N = +input.shift();
-const roads = input.splice(0, N - 1).map((line) => line.split(" ").map(Number));
-const K = +input.shift();
-const cities = input.map((line) => line.split(" ").map(Number));
+    if (this.inputOffset >= this.inputBuffer.length) return null;
 
-const query = (LOG, depth, parent, minRoad, maxRoad, a, b) => {
+    while (
+      this.inputOffset < this.inputBuffer.length &&
+      this.inputBuffer[this.inputOffset] >= 48 &&
+      this.inputBuffer[this.inputOffset] <= 57
+    ) {
+      result = result * 10 + (this.inputBuffer[this.inputOffset++] - 48);
+    }
+
+    return result;
+  }
+
+  addOutputBuffer(number) {
+    if (number === 0) {
+      this.outputBuffer[this.outputOffset++] = 48;
+      return;
+    }
+
+    let remain = number;
+    let started = false;
+    let divisor = 1000000000;
+
+    while (divisor > 0) {
+      if (number >= divisor || started) {
+        const digit = (remain / divisor) | 0;
+        this.outputBuffer[this.outputOffset++] = 48 + digit;
+        remain %= divisor;
+        started = true;
+      }
+      divisor = (divisor / 10) | 0;
+    }
+  }
+
+  addSpace() {
+    this.outputBuffer[this.outputOffset++] = 32;
+  }
+
+  addNewLine() {
+    this.outputBuffer[this.outputOffset++] = 10;
+  }
+
+  writeOutputBuffer() {
+    this.fs.writeSync(1, this.outputBuffer.subarray(0, this.outputOffset - 1));
+  }
+}
+
+const io = new IO();
+const N = io.readInteger();
+const LOG = Math.ceil(Math.log2(N + 1));
+
+const depth = new Int32Array(N + 1).fill(-1);
+const graph = Array.from({ length: N + 1 }, () => []);
+for (let i = 0; i < N - 1; i++) {
+  const A = io.readInteger();
+  const B = io.readInteger();
+  const distance = io.readInteger();
+  graph[A].push([B, distance]);
+  graph[B].push([A, distance]);
+}
+
+const parent = Array.from({ length: N + 1 }, () =>
+  new Int32Array(LOG + 1).fill(0)
+);
+const minRoad = Array.from({ length: N + 1 }, () =>
+  new Int32Array(LOG + 1).fill(Infinity)
+);
+const maxRoad = Array.from({ length: N + 1 }, () =>
+  new Int32Array(LOG + 1).fill(0)
+);
+
+depth[1] = 0;
+let index = 0;
+const queue = [[1, 0]];
+while (index < queue.length) {
+  const [curNode, curDepth] = queue[index++];
+  graph[curNode].forEach(([nextNode, nextDist]) => {
+    if (depth[nextNode] === -1) {
+      depth[nextNode] = curDepth + 1;
+      parent[nextNode][0] = curNode;
+      minRoad[nextNode][0] = nextDist;
+      maxRoad[nextNode][0] = nextDist;
+      queue.push([nextNode, depth[nextNode]]);
+    }
+  });
+}
+
+for (let k = 1; k <= LOG; k++) {
+  for (let node = 1; node <= N; node++) {
+    parent[node][k] = parent[parent[node][k - 1]][k - 1];
+    minRoad[node][k] = Math.min(
+      minRoad[node][k - 1],
+      minRoad[parent[node][k - 1]][k - 1]
+    );
+    maxRoad[node][k] = Math.max(
+      maxRoad[node][k - 1],
+      maxRoad[parent[node][k - 1]][k - 1]
+    );
+  }
+}
+
+const query = (a, b) => {
   let min = Infinity;
   let max = 0;
 
@@ -58,60 +151,15 @@ const query = (LOG, depth, parent, minRoad, maxRoad, a, b) => {
   return [min, max];
 };
 
-const solution = (N, roads, K, cities) => {
-  const depth = new Array(N + 1).fill(null);
-  const graph = Array.from({ length: N + 1 }, () => []);
-  roads.forEach(([A, B, distance]) => {
-    graph[A].push([B, distance]);
-    graph[B].push([A, distance]);
-  });
+const K = io.readInteger();
+for (let i = 0; i < K; i++) {
+  const D = io.readInteger();
+  const E = io.readInteger();
+  const [min, max] = query(D, E);
+  io.addOutputBuffer(min);
+  io.addSpace();
+  io.addOutputBuffer(max);
+  io.addNewLine();
+}
 
-  const LOG = Math.ceil(Math.log2(N + 1));
-  const parent = Array.from({ length: N + 1 }, () =>
-    new Array(LOG + 1).fill(0)
-  );
-  const minRoad = Array.from({ length: N + 1 }, () =>
-    new Array(LOG + 1).fill(Infinity)
-  );
-  const maxRoad = Array.from({ length: N + 1 }, () =>
-    new Array(LOG + 1).fill(0)
-  );
-
-  depth[1] = 0;
-  let index = 0;
-  const queue = [[1, 0]];
-  while (index < queue.length) {
-    const [curNode, curDepth] = queue[index++];
-    graph[curNode].forEach(([nextNode, nextDist]) => {
-      if (depth[nextNode] === null) {
-        depth[nextNode] = curDepth + 1;
-        parent[nextNode][0] = curNode;
-        minRoad[nextNode][0] = nextDist;
-        maxRoad[nextNode][0] = nextDist;
-        queue.push([nextNode, depth[nextNode]]);
-      }
-    });
-  }
-
-  for (let k = 1; k <= LOG; k++) {
-    for (let node = 1; node <= N; node++) {
-      parent[node][k] = parent[parent[node][k - 1]][k - 1];
-      minRoad[node][k] = Math.min(
-        minRoad[node][k - 1],
-        minRoad[parent[node][k - 1]][k - 1]
-      );
-      maxRoad[node][k] = Math.max(
-        maxRoad[node][k - 1],
-        maxRoad[parent[node][k - 1]][k - 1]
-      );
-    }
-  }
-
-  const result = [];
-  cities.forEach(([D, E]) =>
-    result.push(query(LOG, depth, parent, minRoad, maxRoad, D, E))
-  );
-  return result.map((e) => e.join(" ")).join("\n");
-};
-
-console.log(solution(N, roads, K, cities));
+io.writeOutputBuffer();
