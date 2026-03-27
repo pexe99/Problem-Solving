@@ -1,36 +1,82 @@
-const fs = require("fs");
-const input = fs
-  .readFileSync(process.platform === "linux" ? 0 : "input.txt", "utf-8")
-  .trim()
-  .split("\n");
+class IO {
+  constructor() {
+    this.fs = require("fs");
 
-/*
-[input]
-N, K, M: 학생의 수, 동영상의 개수, 남은 수업 시간
-firstVideoNum: 각 학생이 처음 시청하는 동영상 번호 N개
-recommandVideoNum: 각 동영상의 가장 위에 있는 추천 동영상 K개
+    this.inputOffset = 0;
+    this.inputBuffer = this.fs.readFileSync(
+      process.platform === "linux" ? 0 : "input.txt"
+    );
 
-[output]
-각 학생이 M분에 시청하는 동영상 번호를 공백으로 구분해 출력
+    this.outputOffset = 0;
+    this.outputBuffer = new Uint8Array(12 * 5000000);
+  }
 
-[category]
-Sparse Table
+  readInteger() {
+    let result = 0;
 
-[solution]
-각 영상에 대해 2^k분 이후 시청하는 영상에 대한 정보를 Sparse Table에 저장
-이후, 각 학생이 시청을 시작한 영상으로부터 M분 이후 시청하는 영상에 대한 query 수행
-*/
+    while (
+      this.inputOffset < this.inputBuffer.length &&
+      this.inputBuffer[this.inputOffset] <= 32
+    ) {
+      this.inputOffset++;
+    }
 
-const [[N, K, M], firstVideoNum, recommandVideoNum] = input.map((line) =>
-  line.split(" ").map(Number)
-);
+    if (this.inputOffset >= this.inputBuffer.length) return null;
 
-const solution = (N, K, M, firstVideoNum, recommandVideoNum) => {
+    while (
+      this.inputOffset < this.inputBuffer.length &&
+      this.inputBuffer[this.inputOffset] >= 48 &&
+      this.inputBuffer[this.inputOffset] <= 57
+    ) {
+      result = result * 10 + (this.inputBuffer[this.inputOffset++] - 48);
+    }
+
+    return result;
+  }
+
+  addOutputBuffer(number) {
+    if (number === 0) {
+      this.outputBuffer[this.outputOffset++] = 48;
+      this.outputBuffer[this.outputOffset++] = 32;
+      return;
+    }
+
+    let remain = number;
+    let started = false;
+    let divisor = 1000000000;
+
+    while (divisor > 0) {
+      if (number >= divisor || started) {
+        const digit = (remain / divisor) | 0;
+        this.outputBuffer[this.outputOffset++] = 48 + digit;
+        remain %= divisor;
+        started = true;
+      }
+      divisor = (divisor / 10) | 0;
+    }
+
+    this.outputBuffer[this.outputOffset++] = 32;
+  }
+
+  writeOutputBuffer() {
+    this.fs.writeSync(1, this.outputBuffer.subarray(0, this.outputOffset - 1));
+  }
+}
+
+const solution = () => {
+  const io = new IO();
+  const N = io.readInteger();
+  const K = io.readInteger();
+  const M = io.readInteger();
+  const firstVideoNum = [];
+  for (let i = 0; i < N; i++) firstVideoNum.push(io.readInteger());
+
   const LOG = Math.floor(Math.log2(M - 1));
   const sparseTable = Array.from({ length: LOG + 1 }, () =>
-    new Array(K + 1).fill(0)
+    new Int32Array(K + 1).fill(0)
   );
-  for (let i = 1; i <= K; i++) sparseTable[0][i] = recommandVideoNum[i - 1];
+
+  for (let i = 1; i <= K; i++) sparseTable[0][i] = io.readInteger();
   for (let k = 1; k <= LOG; k++) {
     for (let i = 1; i <= K; i++)
       sparseTable[k][i] = sparseTable[k - 1][sparseTable[k - 1][i]];
@@ -43,7 +89,8 @@ const solution = (N, K, M, firstVideoNum, recommandVideoNum) => {
     }
   }
 
-  return firstVideoNum.join(" ");
+  for (let i = 0; i < N; i++) io.addOutputBuffer(firstVideoNum[i]);
+  io.writeOutputBuffer();
 };
 
-console.log(solution(N, K, M, firstVideoNum, recommandVideoNum));
+solution();
