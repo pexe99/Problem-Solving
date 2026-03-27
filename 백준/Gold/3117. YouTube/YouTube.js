@@ -26,7 +26,7 @@ const [[N, K, M], firstVideoNum, recommandVideoNum] = input.map((line) =>
 );
 
 const solution = (N, K, M, firstVideoNum, recommandVideoNum) => {
-  const LOG = Math.floor(Math.log2(M)) + 1;
+  const LOG = Math.floor(Math.log2(M - 1));
   const sparseTable = Array.from({ length: LOG + 1 }, () =>
     new Array(K + 1).fill(0)
   );
