@@ -11,8 +11,8 @@ const isSubstringAppearsTwice = (pow2, pow3, string, len) => {
   let hash2 = 0;
   let hash3 = 0;
   for (let i = 0; i < len; i++) {
-    hash2 = (hash2 + string.charCodeAt(i) * pow2[len - i - 1] + MOD7) % MOD7;
-    hash3 = (hash3 + string.charCodeAt(i) * pow3[len - i - 1] + MOD9) % MOD9;
+    hash2 = (hash2 + string.charCodeAt(i) * pow2[len - i - 1]) % MOD7;
+    hash3 = (hash3 + string.charCodeAt(i) * pow3[len - i - 1]) % MOD9;
   }
 
   const hashSet = new Set([(BigInt(hash2) << 32n) | BigInt(hash3)]);
