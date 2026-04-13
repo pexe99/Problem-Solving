@@ -5,22 +5,19 @@ const input = fs
 
 const solution = (s) => {
   const N = s.length;
-  const dp = Array.from({ length: N }, () => Infinity);
-  const isPal = Array.from({ length: N }, (_, i) =>
-    Array.from({ length: N }, (_, j) => i === j)
-  );
-
-  for (let len = 2; len <= N; len++) {
-    for (let i = 0; i + len - 1 < N; i++) {
-      const j = i + len - 1;
-      isPal[i][j] = s[i] === s[j] && (len === 2 || isPal[i + 1][j - 1]);
-    }
-  }
-
+  const dp = new Array(N).fill(Infinity);
   dp[0] = 1;
-  for (let j = 1; j < N; j++) {
-    for (let i = 0; i <= j; i++) {
-      if (isPal[i][j]) dp[j] = Math.min((dp[i - 1] || 0) + 1, dp[j]);
+
+  for (let i = 0; i < 2 * N - 1; i++) {
+    let start = i >> 1;
+    let end = (i + 1) >> 1;
+    while (0 <= start && end < N) {
+      if (s[start] === s[end]) {
+        const current = (dp[start - 1] || 0) + 1;
+        dp[end] = Math.min(dp[end], current);
+        start--;
+        end++;
+      } else break;
     }
   }
 
