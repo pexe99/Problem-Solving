@@ -1,40 +1,21 @@
 const solution = (edges) => {
     const graph = {};
-    const indegree = {};
-    const outdegree = {};
-    const nodes = new Set();
-    
     edges.forEach(([from, to]) => {
-        nodes.add(from);
-        nodes.add(to);
-        indegree[to] = (indegree[to] || 0) + 1;
-        outdegree[from] = (outdegree[from] || 0) + 1;
-        if(!graph[from]) graph[from] = [];
-        graph[from].push(to);
+        if(!graph[from]) graph[from] = {indegree: 0, outdegree: 0};
+        if(!graph[to]) graph[to] = {indegree: 0, outdegree: 0};
+        graph[from].outdegree++;
+        graph[to].indegree++;
     });
     
-    let extraNode = null;
-    let graphCounter = 0;
-    for(const node of nodes) {
-        if(!indegree[node] && outdegree[node] >= 2) {
-            extraNode = node;
-            graphCounter = outdegree[node];
-            graph[node].forEach((next) => indegree[next]--);
-            nodes.delete(node);
-            break;
-        }
-    }
+    let newNode = null;
+    let lineGraph = 0;
+    let eightGraph = 0;
+    Object.entries(graph).forEach(([node, {indegree, outdegree}]) => {
+        if(indegree === 0 && outdegree > 1) newNode = node;
+        else if(outdegree === 0) lineGraph++;
+        else if(indegree > 1 && outdegree > 1) eightGraph++;
+    });
     
-    let result = [extraNode, graphCounter, 0, 0]
-    for(const node of [...nodes]) {
-        if(!indegree[node]) {
-            result[2]++;
-            result[1]--;
-        } else if(indegree[node] === 2 && outdegree[node] === 2) {
-            result[3]++;
-            result[1]--;
-        }
-    }
-    
-    return result;
+    let donutGraph = graph[newNode].outdegree - lineGraph - eightGraph;
+    return [+newNode, donutGraph, lineGraph, eightGraph];
 }
