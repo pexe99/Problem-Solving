@@ -1,13 +1,12 @@
 function solution(survey, choices) {
-    const score = {};
-    const types = ["RT", "CF", "JM", "AN"];
-    
-    types.join("").split("").forEach((type) => score[type] = 0);
-    
-    choices.forEach((choice, index) => {
-        const [left, right] = survey[index].split("");
-        score[choice <= 4 ? left : right] += Math.abs(4 - choice);
+    const score = {'R': 0, 'T': 0, 'C': 0, 'F': 0, 'J': 0, 'M': 0, 'A': 0, 'N': 0};
+    survey.forEach((type, index) => {
+        const current = choices[index]
+        if(current < 4) score[type[0]] += 4 - current;
+        else if(4 < current) score[type[1]] += current - 4;
     });
-    
-    return types.map(([t1, t2]) => score[t1] < score[t2] ? t2 : t1).join("");
+    return (score['R'] >= score['T'] ? 'R' : 'T') +
+           (score['C'] >= score['F'] ? 'C' : 'F') +
+           (score['J'] >= score['M'] ? 'J' : 'M') +
+           (score['A'] >= score['N'] ? 'A' : 'N');
 }
